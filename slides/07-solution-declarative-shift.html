@@ -1,0 +1,70 @@
+<!-- slides/07-solution-declarative-shift.html -->
+<style>
+    .shift-container { 
+        display: grid; 
+        grid-template-columns: 1fr 1.2fr; 
+        gap: 2rem; 
+        width: 100%; 
+        align-items: stretch; /* 讓卡片等高 */
+    }
+    .shift-card { 
+        background-color: rgba(0,0,0,0.3); 
+        border-radius: 15px; 
+        padding: 1.5rem; 
+        border: 2px solid #636e72; 
+        text-align: left; 
+        height: 100%; 
+        display: flex;
+        flex-direction: column;
+    }
+    .shift-card-title { 
+        font-size: 1.75rem; 
+        font-weight: 900; 
+        margin-bottom: 1rem; 
+    }
+    .shift-card p { 
+        font-size: 1.1rem; 
+        line-height: 1.7; 
+        color: var(--coscup-light);
+        flex-grow: 1; /* 讓文字區塊填滿剩餘空間 */
+    }
+    .code-block { 
+        background-color: var(--coscup-dark); 
+        border-radius: 8px; 
+        padding: 1rem; 
+        text-align: left; 
+        font-family: monospace; 
+        white-space: pre-wrap; 
+        margin-top: 1rem;
+    }
+</style>
+<div class="w-full h-full flex flex-col justify-center items-center text-center">
+    <h2 class="text-4xl font-black mb-4" style="color: var(--coscup-green); text-shadow: 2px 2px 0 var(--coscup-dark);">解方登場</h2>
+    <h1 class="text-5xl font-black mb-8" style="color: var(--coscup-yellow); text-shadow: 3px 3px 0 var(--coscup-dark);">宣告式革命：從「給指令」到「講目的」</h1>
+    <div class="shift-container">
+        <!-- 命令式 -->
+        <div class="shift-card border-red-400">
+            <h3 class="shift-card-title text-red-400">命令式 (Imperative)</h3>
+            <p class="mb-4">你一步步告訴司機怎麼開車，鉅細靡遺。但只要遇到封路，整趟行程就毀了。</p>
+            <div class="code-block text-red-300">
+// 脆弱的腳本
+1. 直走 500 公尺
+2. 在中山路左轉
+3. 經過三個紅綠燈...
+<span class="text-gray-500">// 如果中山路施工怎麼辦？</span>
+            </div>
+        </div>
+        <!-- 宣告式 -->
+        <div class="shift-card border-green-400">
+            <h3 class="shift-card-title text-green-400">宣告式 (Declarative)</h3>
+            <p class="mb-4">你只告訴司機目的地地址。司機會自己看導航、躲避塞車，確保把你送到。你只關心「結果」，不需煩惱「過程」。</p>
+            <div class="code-block text-green-300">
+# K8s YAML 檔案
+<span class="text-cyan-400">kind:</span> Destination
+<span class="text-cyan-400">spec:</span>
+  <span class="text-cyan-400">address:</span> "台北市信義區市府路1號"
+  <span class="text-cyan-400">arriveBy:</span> "10:30"
+            </div>
+        </div>
+    </div>
+</div>
