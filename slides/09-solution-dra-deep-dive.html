@@ -1,0 +1,95 @@
+<!-- slides/09-solution-dra-deep-dive.html -->
+<style>
+    .dra-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: stretch; /* Make cards equal height */
+        width: 100%;
+        gap: 1rem;
+        position: relative;
+    }
+    .dra-step {
+        background-color: rgba(0,0,0,0.3);
+        border-radius: 15px;
+        border: 2px solid;
+        width: 31%;
+        padding: 1.5rem 1rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        z-index: 2;
+    }
+    .dra-icon {
+        width: 80px;
+        height: 80px;
+        margin-bottom: 1rem;
+    }
+    .dra-title {
+        font-weight: 900;
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+    }
+    .dra-description {
+        font-size: 1rem;
+        color: var(--coscup-light);
+        flex-grow: 1;
+    }
+    .dra-code {
+        font-family: monospace;
+        font-size: 0.9rem;
+        background: rgba(0,0,0,0.4);
+        padding: 0.5rem;
+        border-radius: 5px;
+        margin-top: 1rem;
+        border: 1px solid;
+    }
+    .dra-arrow {
+        position: absolute;
+        top: 40%;
+        color: var(--coscup-light);
+        opacity: 0.8;
+        z-index: 1;
+        width: 8%;
+    }
+</style>
+<div class="w-full h-full flex flex-col justify-center items-center text-center">
+    <h2 class="text-4xl font-black mb-4" style="color: var(--coscup-green); text-shadow: 2px 2px 0 var(--coscup-dark);">技術深潛</h2>
+    <h1 class="text-5xl font-black mb-8" style="color: var(--coscup-yellow); text-shadow: 3px 3px 0 var(--coscup-dark);">DRA：為網路資源打造的原生 K8s 語言</h1>
+
+    <div class="dra-container">
+        <!-- Arrow 1 -->
+        <svg class="dra-arrow" style="left: 29%;" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25 21 12m0 0-3.75 3.75M21 12H3" /></svg>
+        
+        <!-- Step 1: Publish -->
+        <div class="dra-step" style="border-color: var(--coscup-pink);">
+            <svg class="dra-icon text-pink-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-9.75 0h9.75" /></svg>
+            <h3 class="dra-title" style="color: var(--coscup-pink);">第一幕：發布資源</h3>
+            <p class="dra-description">節點上的 DRA 驅動程式掃描硬體，將可用的高效能網卡及其詳細屬性，發布成一份份的「資源清單」。</p>
+            <div class="dra-code" style="border-color: var(--coscup-pink); color: var(--coscup-pink);">ResourceSlice</div>
+        </div>
+
+        <!-- Arrow 2 -->
+        <svg class="dra-arrow" style="left: 62%;" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25 21 12m0 0-3.75 3.75M21 12H3" /></svg>
+
+        <!-- Step 2: Request & Schedule -->
+        <div class="dra-step" style="border-color: var(--coscup-blue);">
+            <svg class="dra-icon text-blue-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25Z" /></svg>
+            <h3 class="dra-title" style="color: var(--coscup-blue);">第二幕：提出申請</h3>
+            <p class="dra-description">開發者在 Pod 中定義「資源申請」，詳細描述他需要什麼樣的網卡 (例如：需要 SR-IOV)。</p>
+            <div class="dra-code" style="border-color: var(--coscup-blue); color: var(--coscup-blue);">ResourceClaim</div>
+        </div>
+
+        <!-- Step 3: Allocate & Configure -->
+        <div class="dra-step" style="border-color: var(--coscup-green);">
+             <svg class="dra-icon text-green-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 0 1-1.043 3.296 3.745 3.745 0 0 1-3.296 1.043A3.745 3.745 0 0 1 12 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 0 1-3.296-1.043 3.745 3.745 0 0 1-1.043-3.296A3.745 3.745 0 0 1 3 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 0 1 1.043-3.296 3.746 3.746 0 0 1 3.296-1.043A3.746 3.746 0 0 1 12 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 0 1 3.296 1.043 3.746 3.746 0 0 1 1.043 3.296A3.745 3.745 0 0 1 21 12Z" /></svg>
+            <h3 class="dra-title" style="color: var(--coscup-green);">第三幕：智慧媒合</h3>
+            <p class="dra-description">K8s 調度器扮演媒人，找到能滿足申請的節點，預留資源，並通知該節點的驅動程式完成最後的設定。</p>
+            <div class="dra-code" style="border-color: var(--coscup-green); color: var(--coscup-green);">Pod Scheduled</div>
+        </div>
+    </div>
+    
+    <p class="mt-8 text-2xl max-w-4xl leading-relaxed">
+        DRA 終結了「雞同鴨講」，為高效能網路提供了<span class="font-bold text-yellow-300"> Kubernetes 原生的、標準化的</span>溝通方式。
+    </p>
+</div>
