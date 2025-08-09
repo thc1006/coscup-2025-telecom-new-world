@@ -1,0 +1,80 @@
+<!-- slides/02-crisis-designed-for-peak.html -->
+<style>
+    .peak-container { 
+        display: grid; 
+        grid-template-columns: 1fr 1fr; 
+        gap: 2rem; 
+        width: 100%; 
+        max-width: 900px; 
+        align-items: center; 
+    }
+    .peak-card { 
+        background-color: rgba(0,0,0,0.3); 
+        border-radius: 15px; 
+        padding: 1.5rem; 
+        border: 2px solid #636e72; 
+        display: flex; 
+        flex-direction: column; 
+        align-items: center; 
+        height: 100%; 
+    }
+    .peak-card svg { 
+        width: 80px; 
+        height: 80px; 
+        margin-bottom: 1rem; 
+    }
+    .peak-card-title { 
+        font-size: 1.75rem; 
+        font-weight: 900; 
+        margin-bottom: 0.5rem; 
+    }
+    .peak-card-description { 
+        font-size: 1.1rem; 
+        color: #b2bec3;
+        flex-grow: 1;
+    }
+    .power-meter { 
+        width: 100%; 
+        height: 20px; 
+        background-color: var(--coscup-dark); 
+        border-radius: 10px; 
+        margin-top: 1rem; 
+        overflow: hidden; 
+        border: 1px solid #636e72; 
+    }
+    .power-fill { 
+        height: 100%; 
+        background: linear-gradient(90deg, var(--coscup-yellow), #e17055); 
+        width: 100%; /* 兩者都滿載耗電 */
+    }
+</style>
+<div class="w-full h-full flex flex-col justify-center items-center text-center">
+    <h2 class="text-4xl font-black mb-4" style="color: var(--coscup-pink); text-shadow: 2px 2px 0 var(--coscup-dark);">另一個隱形殺手</h2>
+    <h1 class="text-5xl font-black mb-10" style="color: var(--coscup-yellow); text-shadow: 3px 3px 0 var(--coscup-dark);">「為峰值設計」的巨大浪費</h1>
+
+    <div class="peak-container">
+        <!-- 離峰卡片 -->
+        <div class="peak-card">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="text-blue-300">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z" />
+            </svg>
+            <div class="peak-card-title text-blue-300">離峰時段 (凌晨 3點)</div>
+            <p class="peak-card-description">絕大多數時間，昂貴的基地台設備都處於閒置或低度使用狀態。</p>
+            <div class="power-meter" title="電力消耗: 100%">
+                <div class="power-fill"></div>
+            </div>
+        </div>
+
+        <!-- 尖峰卡片 -->
+        <div class="peak-card">
+             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="text-red-400">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z" />
+            </svg>
+            <div class="peak-card-title text-red-400">尖峰時刻 (跨年夜)</div>
+            <p class="peak-card-description">網路必須為了應付極少數的最高流量時刻而建置，但硬體卻 24/7 全速運轉。</p>
+            <div class="power-meter" title="電力消耗: 100%">
+                <div class="power-fill"></div>
+            </div>
+        </div>
+    </div>
+</div>
