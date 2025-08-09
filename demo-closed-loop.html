@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Closed-Loop Automation｜GitOps + AI（互動流程圖）</title>
+<meta name="description" content="將閉環自動化拆解為可追溯的 GitOps 步驟，並以擬真的 PR Diff / 日誌 / 指標呈現 AI 作為提案者的安全協作流程。" />
+<style>
+  :root{
+    --bg:#0b1020; --panel:#111735; --ink:#eaf2ff; --muted:#96a7ce;
+    --accent:#7dd3fc; --ok:#22c55e; --warn:#f59e0b; --err:#ef4444;
+    --diff-add:#052e16; --diff-del:#3f1419; --code:#0a0f25;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0;background:
+    radial-gradient(1200px 700px at 70% -10%, #1a2354 0%, #0b1020 60%);
+    color:var(--ink); font-family: ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans TC","PingFang TC","Microsoft JhengHei"; }
+  .frame{ width:min(1400px,96vw); aspect-ratio:16/9; margin:12px auto;
+    border:1px solid rgba(255,255,255,.08); border-radius:20px; overflow:hidden;
+    display:grid; grid-template-columns: 420px 1fr; grid-template-rows: 64px 1fr 56px;
+    box-shadow:0 20px 60px rgba(0,0,0,.5); background:linear-gradient(180deg,#0e1534aa,#0e153470);
+  }
+  header{ grid-column:1/-1; display:flex; align-items:center; justify-content:space-between;
+    padding:10px 14px; background:rgba(0,0,0,.25); border-bottom:1px solid rgba(255,255,255,.06);}
+  header h1{font-size:18px; margin:0; letter-spacing:.3px}
+  .badges{display:flex; gap:10px}
+  .badge{font-size:12px; color:#cfe1ff; border:1px solid rgba(125,211,252,.35); padding:6px 10px; border-radius:999px; background:rgba(125,211,252,.14)}
+  /* 左側：垂直流程圖 */
+  aside{ padding:14px; border-right:1px solid rgba(255,255,255,.06); overflow:auto; }
+  .lane{position:relative; margin:4px 0 0 12px; padding-left:18px}
+  .lane::before{content:""; position:absolute; left:3px; top:0; bottom:0; width:2px; background:linear-gradient(180deg,#20306a,#3d4d8b)}
+  .step{ position:relative; margin:14px 0; padding:12px; border-radius:14px; background:rgba(255,255,255,.04);
+    border:1px solid rgba(255,255,255,.06); cursor:pointer; transition:.18s transform,.18s border-color,.18s background;
+    display:grid; grid-template-columns: 30px 1fr auto; gap:10px; align-items:center; }
+  .step:hover{ transform:translateX(4px); border-color:rgba(125,211,252,.45); background:rgba(125,211,252,.10)}
+  .dot{width:10px;height:10px;border-radius:999px;background:var(--accent); box-shadow:0 0 10px #7dd3fcaa}
+  .title{font-weight:700; font-size:14px}
+  .desc{font-size:12px; color:var(--muted)}
+  .tag{font-size:11px; color:#9bd3ff; border:1px solid rgba(125,211,252,.35); padding:3px 8px; border-radius:999px; background:rgba(125,211,252,.12)}
+  .playbar{display:flex; gap:10px; align-items:center; margin-top:8px}
+  button{ background:linear-gradient(180deg,rgba(125,211,252,.22),rgba(125,211,252,.12));
+    color:var(--ink); border:1px solid rgba(125,211,252,.35); border-radius:12px; padding:10px 12px; font-weight:700; cursor:pointer }
+  button.secondary{ background:rgba(255,255,255,.06); border-color:rgba(255,255,255,.1)}
+  /* 右側：主視覺與細節抽屜 */
+  main{ position:relative; overflow:hidden; }
+  .hero{height:100%; padding:16px; display:grid; grid-template-rows: 1fr 1fr; gap:12px}
+  .panel{ background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.06); border-radius:16px; padding:12px }
+  .panel h3{margin:0 0 8px; font-size:14px; color:#cfe3ff}
+  .kpis{display:grid; grid-template-columns: repeat(3,1fr); gap:10px}
+  .kpi{background:rgba(0,0,0,.25); border:1px solid rgba(255,255,255,.08); border-radius:12px; padding:10px}
+  .kpi h4{margin:0; font-size:12px; color:#cfe3ff}
+  .kpi .v{font-size:20px; font-weight:800; margin-top:6px}
+  .kpi.ok .v{color:var(--ok)} .kpi.warn .v{color:var(--warn)} .kpi.err .v{color:var(--err)}
+  .timeline{height:100%; background:linear-gradient(180deg,#0a112e,#0a0f25); border-radius:12px; border:1px solid rgba(255,255,255,.08); padding:10px; overflow:auto; font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; color:#cfe1ff}
+  .logline{white-space:pre; font-size:12px; line-height:1.5}
+  /* 抽屜（細節） */
+  .drawer{ position:absolute; top:0; right:0; width:min(720px,56%); height:100%; backdrop-filter: blur(8px); background:rgba(7,10,26,.82);
+    border-left:1px solid rgba(255,255,255,.08); transform:translateX(100%); transition:.25s transform; display:flex; flex-direction:column }
+  .drawer.show{ transform:translateX(0) }
+  .drawer header{ background:transparent; border-bottom:1px solid rgba(255,255,255,.06); }
+  .drawer .body{ padding:12px; overflow:auto }
+  .meta{display:flex; gap:8px; flex-wrap:wrap}
+  .meta .pill{ font-size:11px; padding:4px 8px; border-radius:999px; border:1px solid rgba(255,255,255,.12); background:rgba(255,255,255,.06); color:#cfe3ff}
+  /* Diff / Code 視覺 */
+  .codebox{ background:var(--code); border:1px solid rgba(255,255,255,.08); border-radius:12px; overflow:hidden; }
+  .codehead{ padding:8px 10px; font-size:12px; color:#a7b7e4; border-bottom:1px solid rgba(255,255,255,.08); display:flex; justify-content:space-between; align-items:center}
+  .code{ font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:12px; line-height:1.5; padding:10px; overflow:auto; max-height:48vh; color:#cfe1ff; }
+  .line{ white-space:pre; display:block }
+  .add{ background:linear-gradient(90deg,var(--diff-add),transparent) }
+  .del{ background:linear-gradient(90deg,var(--diff-del),transparent) }
+  .num{ color:#7ca7ff; display:inline-block; width:38px }
+  .sym{ display:inline-block; width:16px; font-weight:800 }
+  .foot{ grid-column:1/-1; display:flex; justify-content:space-between; align-items:center; padding:8px 14px; font-size:12px; color:#9db0d8; border-top:1px solid rgba(255,255,255,.06) }
+  a{ color:#9bd3ff; text-decoration:none }
+  @media (max-width:1100px){ .frame{ grid-template-columns:380px 1fr } }
+  @media (max-width:900px){ .frame{ height:1200px; aspect-ratio:auto } }
+</style>
+</head>
+<body>
+<div class="frame" role="application" aria-label="Closed-Loop Automation Explorer">
+  <header>
+    <h1>閉環自動化：從監控到 PR 與調和的 GitOps 閉環（AI = 提案者）</h1>
+    <div class="badges">
+      <span class="badge">16:9</span>
+      <span class="badge">Space：播放閉環／Esc：關閉視窗</span>
+    </div>
+  </header>
+
+  <!-- 左：垂直流程圖 -->
+  <aside>
+    <div class="lane" id="lane"></div>
+    <div class="playbar">
+      <button id="play">▶ 自動播放閉環</button>
+      <button id="reset" class="secondary">↺ 重置</button>
+    </div>
+    <p class="desc" style="margin-top:6px;color:var(--muted)">
+      流程靈感來自你提供文本中的「意圖→基底套件→特化→推送至 Git→由 Argo/Flux 調和」步驟，並將 AI 嵌入為變更提案者與守門檢查的前置流程。
+    </p>
+  </aside>
+
+  <!-- 右：主視覺與抽屜 -->
+  <main>
+    <div class="hero">
+      <div class="panel">
+        <h3>即時摘要</h3>
+        <div class="kpis">
+          <div class="kpi"><h4>目前步驟</h4><div class="v" id="kStep">—</div></div>
+          <div class="kpi ok"><h4>最新 PR 狀態</h4><div class="v" id="kPR">—</div></div>
+          <div class="kpi warn"><h4>SLO 指標</h4><div class="v" id="kSLO">—</div></div>
+        </div>
+      </div>
+      <div class="panel">
+        <h3>事件時間軸（示意）</h3>
+        <div class="timeline" id="timeline" aria-live="polite"></div>
+      </div>
+    </div>
+
+    <div class="drawer" id="drawer" aria-modal="true" role="dialog">
+      <header>
+        <h1 style="font-size:16px;margin:0;padding:10px 14px">細節</h1>
+        <div class="badges"><span class="badge" id="dTitle">—</span></div>
+      </header>
+      <div class="body">
+        <div class="meta" id="meta"></div>
+        <div class="codebox" style="margin-top:12px;display:none" id="codebox">
+          <div class="codehead"><span id="filename">—</span><span id="filemeta" style="opacity:.8"></span></div>
+          <div class="code" id="code"></div>
+        </div>
+        <div class="panel" id="note" style="margin-top:12px;display:none"></div>
+      </div>
+    </div>
+  </main>
+
+  <div class="foot">
+    <div>點選任一步驟以查看：監控事件、AI 決策摘要、PR Diff、守門檢查、調和日誌、回驗／回滾。</div>
+    <div>參考：OpenGitOps 原則、Argo CD／Flux 調和循環、ETSI ENI 閉環定義、NIST 對抗式攻擊分類。 </div>
+  </div>
+</div>
+
+<script>
+/* ------- 資料模型：流程步驟與對應的「可審計產物」 ------- */
+const steps = [
+  {
+    id:'observe', title:'監控與警報', tag:'Observe',
+    desc:'Prometheus/Alert 跳出：P95 延遲 ↑、錯誤率 ↑（尖峰前兆）。',
+    meta:['Prometheus','SLO watch','Anomaly'],
+    file:{name:'alerts.json', kind:'json', content: `{
+  "firing": true,
+  "rule": "latency_p95_over_300ms",
+  "labels": {"service":"checkout","env":"prod"},
+  "values": {"p95_ms": 352, "error_rate": 1.8, "traffic": "increasing"}
+}`},
+    log:[
+      '23:58:11  monitor  Anomaly detected: p95 latency=352ms (>300)',
+      '23:58:12  monitor  ErrorRate=1.8% (>1.0%) on svc=checkout',
+      '23:58:12  monitor  Creating event for AIOps pipeline…'
+    ]
+  },
+  {
+    id:'ai', title:'AI 分析與決策（提案者）', tag:'AI Proposer',
+    desc:'AI 讀取指標／拓樸／歷史，判斷「水平擴展 + 限制調整」可降低延遲。',
+    meta:['Root-cause','What-if','Guardrails'],
+    file:{name:'analysis.yaml', kind:'yaml', content: `summary: |
+  Traffic increasing; autoscaler too conservative for batch peak
+proposal:
+  - action: scale
+    target: deployment/checkout
+    replicas: 3 -> 5
+    rationale: reduce p95 < 250ms
+  - action: update.resources
+    target: deployment/checkout
+    limits:
+      cpu: 800m -> 1200m
+      memory: 768Mi -> 1024Mi
+audit:
+  model: "ops-assistant-x.y"
+  prompts: "summarized"
+  datasets: "approved telemetry snapshots"`},
+    note:`在此，AI 僅扮演「提案者」，其輸出會轉成標準 PR 以便審核與測試（符合你文本裡「以 Git 為稽核軌跡」的要求）。`
+  },
+  {
+    id:'pr', title:'產生變更提案（PR / Diff）', tag:'Pull Request',
+    desc:'將 AI 建議轉為 PR。可審計、可回滾、可測試。',
+    meta:['Git','Code Review','Policy'],
+    file:{name:'k8s/deployment.yaml', kind:'diff', content: [
+      ['-','  replicas: 3'],
+      ['+','  replicas: 5'],
+      [' ','  template:'],
+      [' ','    spec:'],
+      [' ','      containers:'],
+      [' ','      - name: checkout'],
+      ['-','        resources: {limits: {cpu: "800m", memory: "768Mi"}, requests: {cpu: "400m", memory: "512Mi"}}'],
+      ['+','        resources: {limits: {cpu: "1200m", memory: "1024Mi"}, requests: {cpu: "600m", memory: "768Mi"}}'],
+    ]},
+    note:`PR 為唯一變更通道，符合 GitOps 原則（宣告式、版本化、由代理拉取並持續調和）:contentReference[oaicite:9]{index=9}。`
+  },
+  {
+    id:'policy', title:'守門檢查（Policy & 測試）', tag:'Checks',
+    desc:'OPA/Conftest、Kubeval、負載預演等自動化檢查。',
+    meta:['OPA','Conftest','Security'],
+    file:{name:'policy.log', kind:'log', content:[
+      '[CHECK] schema…… OK',
+      '[CHECK] pod-security baseline…… OK',
+      '[CHECK] resource-limits within quota…… OK',
+      '[CHECK] canary rollout window capacity…… OK',
+      '[SEC] image signature (cosign)…… OK',
+      '[NOTE] ready to merge; awaiting reviewers ✅'
+    ]},
+    note:`這裡亦可納入 AI 供應鏈安全與對抗式威脅的檢核，如資料汙染／提示注入等，對照 NIST AI 100-2 的攻擊分類與緩解建議:contentReference[oaicite:10]{index=10}。`
+  },
+  {
+    id:'merge', title:'合併與調和（Argo/Flux）', tag:'Reconcile',
+    desc:'Merge 後由 Argo CD / Flux 監看 Git，拉取並調和到叢集。',
+    meta:['Argo CD','Flux','Sync'],
+    file:{name:'reconcile.log', kind:'log', content:[
+      '00:02:10  argo  Detected commit abc123 (PR #427 merged) ',
+      '00:02:11  argo  Sync in progress… apply deployment/checkout',
+      '00:02:18  argo  Wait Ready… 2/5 → 5/5 available',
+      '00:02:24  argo  Sync Succeeded ✅'
+    ]},
+    note:`Argo CD/Flux 將 Git 作為單一真相來源，持續比較集群實際狀態與所宣告的期望狀態並調和:contentReference[oaicite:11]{index=11}。`
+  },
+  {
+    id:'verify', title:'回驗與回饋（Measure & Learn）', tag:'Verify',
+    desc:'部署後自動對照 SLO；若不符，觸發回滾或下一輪提案。',
+    meta:['SLO','Canary','Feedback'],
+    file:{name:'post_check.json', kind:'json', content:`{
+  "window": "5m post-deploy",
+  "p95_ms": 228,
+  "error_rate": 0.6,
+  "status": "meets SLO"
+}`},
+    log:[
+      '00:05:40  slo     p95=228ms OK; err=0.6% OK',
+      '00:05:42  ops     Feedback committed to analytics store',
+      '00:05:50  loop    Closed loop complete.'
+    ]
+  },
+  {
+    id:'rollback', title:'安全回滾（必要時）', tag:'Rollback',
+    desc:'若 SLO 破壞或風險提升，立即還原上一版本。Git 歷史即回滾點。',
+    meta:['Rollback','Audit','DR'],
+    file:{name:'git/commands.txt', kind:'log', content:[
+      '$ git revert -m 1 abc123    # revert PR #427',
+      '$ git push origin main      # Argo/Flux will reconcile back',
+      'System: automatic restore manifests to replicas:3, limits:800m/768Mi'
+    ]},
+    note:`Git 的不可變歷史提供完整稽核與一鍵回滾；符合你文本強調「不可否認的審計軌跡」。`
+  }
+];
+
+/* ------- UI 建立：流程卡片 ------- */
+const lane = document.getElementById('lane');
+steps.forEach((s,i)=>{
+  const card = document.createElement('div');
+  card.className='step';
+  card.setAttribute('tabindex','0');
+  card.dataset.step = s.id;
+  card.innerHTML = `
+    <span class="dot"></span>
+    <div><div class="title">${i+1}. ${s.title}</div><div class="desc">${s.desc}</div></div>
+    <span class="tag">${s.tag}</span>
+  `;
+  card.addEventListener('click',()=>openStep(s));
+  card.addEventListener('keydown',(e)=>{ if(e.key==='Enter' || e.key===' ') { e.preventDefault(); openStep(s);} });
+  lane.appendChild(card);
+});
+
+/* ------- 右側抽屜：呈現內容 ------- */
+const drawer = document.getElementById('drawer');
+const dTitle = document.getElementById('dTitle');
+const meta = document.getElementById('meta');
+const codebox = document.getElementById('codebox');
+const filename = document.getElementById('filename');
+const filemeta = document.getElementById('filemeta');
+const code = document.getElementById('code');
+const note = document.getElementById('note');
+
+function openStep(s){
+  // KPI / Timeline
+  document.getElementById('kStep').textContent = s.title;
+  if (s.id==='pr') document.getElementById('kPR').textContent = 'PR #427 進行中';
+  if (s.id==='merge') document.getElementById('kPR').textContent = 'PR #427 已合併';
+  if (s.id==='verify') document.getElementById('kSLO').textContent = 'SLO ✅';
+  if (s.log){
+    s.log.forEach(line=> pushLog(line));
+  }
+
+  // Drawer
+  dTitle.textContent = s.title;
+  meta.innerHTML = '';
+  s.meta.forEach(m=>{
+    const pill = document.createElement('span'); pill.className='pill'; pill.textContent=m; meta.appendChild(pill);
+  });
+
+  codebox.style.display='none';
+  note.style.display='none';
+  if (s.file){
+    codebox.style.display='block';
+    filename.textContent = s.file.name;
+    filemeta.textContent = s.file.kind.toUpperCase();
+    code.innerHTML='';
+    if (s.file.kind==='diff'){
+      // render diff
+      let ln=1, rn=1;
+      s.file.content.forEach(([sym,text])=>{
+        const line = document.createElement('span');
+        line.className = 'line ' + (sym==='+'?'add':sym==='-'?'del':'');
+        let numL = sym==='+'? '': String(ln++).padStart(3,' ');
+        let numR = sym==='-'? '': String(rn++).padStart(3,' ');
+        line.innerHTML = `<span class="sym">${sym}</span><span class="num">${numL}</span> <span class="num">${numR}</span> ${escapeHtml(text)}`;
+        code.appendChild(line);
+      });
+    } else if (s.file.kind==='log'){
+      s.file.content.forEach((t,i)=>{
+        const line = document.createElement('span'); line.className='line'; line.textContent = t; code.appendChild(line);
+      });
+    } else {
+      const lines = s.file.content.split('\n');
+      lines.forEach((t,i)=>{
+        const line = document.createElement('span'); line.className='line'; line.innerHTML = `<span class="num">${String(i+1).padStart(3,' ')}</span> ${escapeHtml(t)}`; code.appendChild(line);
+      });
+    }
+  }
+  if (s.note){
+    note.style.display='block';
+    note.innerHTML = s.note;
+  }
+  drawer.classList.add('show');
+}
+
+function escapeHtml(str){ return str.replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+document.addEventListener('keydown',(e)=>{ if(e.key==='Escape') drawer.classList.remove('show'); });
+
+/* ------- 時間軸 ------- */
+const timeline = document.getElementById('timeline');
+function pushLog(msg){
+  const el = document.createElement('div');
+  el.className='logline';
+  el.textContent = msg;
+  timeline.appendChild(el);
+  timeline.scrollTop = timeline.scrollHeight;
+}
+
+/* ------- 自動播放閉環 ------- */
+let playing=false, idx=0, timer=null;
+function playOnce(){
+  if (idx>=steps.length){ playing=false; idx=0; document.getElementById('play').textContent='▶ 自動播放閉環'; return; }
+  openStep(steps[idx]); idx++;
+  timer = setTimeout(playOnce, 1100);
+}
+document.getElementById('play').addEventListener('click', ()=>{
+  playing = !playing;
+  document.getElementById('play').textContent = playing?'⏸ 暫停':'▶ 自動播放閉環';
+  if (playing){ idx=0; playOnce(); } else { clearTimeout(timer); }
+});
+document.getElementById('reset').addEventListener('click', ()=>{
+  playing=false; idx=0; document.getElementById('play').textContent='▶ 自動播放閉環';
+  timeline.innerHTML=''; document.getElementById('kStep').textContent='—'; document.getElementById('kPR').textContent='—'; document.getElementById('kSLO').textContent='—';
+  document.getElementById('drawer').classList.remove('show');
+});
+
+/* ------- 初始提示 ------- */
+pushLog('23:58:00  system  Closed-Loop Automation ready. Click a step to explore.');
+</script>
+</body>
+</html>
