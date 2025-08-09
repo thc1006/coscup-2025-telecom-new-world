@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>AI & RAN GPU 基地台 ROI 計算機｜Cost → Profit</title>
+  <meta name="description" content="把 RAN 基地台的 GPU 在夜間出租給 AI 任務，能不能把成本中心變利潤中心？用滑桿與參數，一起算！" />
+  <style>
+    :root{
+      --bg:#0b1020; --panel:#121a35; --muted:#8aa0c7; --text:#eaf2ff; --accent:#7dd3fc; --accent2:#a78bfa; --good:#22c55e; --bad:#ef4444; --warn:#f59e0b;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;background:radial-gradient(1200px 600px at 70% -10%, #1b2552 0%, #0b1020 60%);}
+    body{font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", "Helvetica Neue", Arial, "Apple Color Emoji", "Segoe UI Emoji"; color:var(--text); display:flex; align-items:center; justify-content:center; padding:12px;}
+    .frame{
+      width:min(1400px, 96vw);
+      aspect-ratio:16/9;
+      background:linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.0));
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:22px; box-shadow:0 10px 40px rgba(0,0,0,.5);
+      display:grid; grid-template-columns: 380px 1fr; grid-template-rows: 72px 1fr 140px; overflow:hidden;
+    }
+    header{grid-column:1 / -1; display:flex; align-items:center; justify-content:space-between; padding:14px 18px; background:rgba(0,0,0,.22); border-bottom:1px solid rgba(255,255,255,.06)}
+    header h1{font-size:18px; letter-spacing:.4px; margin:0; font-weight:700}
+    header .badges{display:flex; gap:10px; align-items:center}
+    .badge{font-size:12px; padding:6px 10px; border-radius:999px; background:rgba(125,211,252,.14); color:var(--accent); border:1px solid rgba(125,211,252,.35)}
+    .col-left{grid-row:2 / 4; background:linear-gradient(180deg, rgba(18,26,53,.9), rgba(18,26,53,.6)); border-right:1px solid rgba(255,255,255,.06); padding:14px; overflow:auto}
+    .panel{background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.06); border-radius:16px; padding:12px; margin-bottom:12px}
+    .panel h3{margin:6px 0 10px; font-size:14px; color:#c9dafd; letter-spacing:.3px}
+    .row{display:grid; grid-template-columns: 1fr 100px; gap:10px; align-items:center; margin:8px 0}
+    .row label{font-size:13px; color:var(--muted)}
+    .row input[type="number"], .row input[type="text"], .row select{
+      width:100%; background:#0d1329; color:var(--text); border:1px solid rgba(255,255,255,.08); border-radius:10px; padding:8px 10px; font-size:14px;
+    }
+    .row input[type="range"]{width:100%}
+    .hint{font-size:12px; color:#9fb3db}
+    .cta{display:flex; gap:10px; margin-top:6px}
+    button{
+      background:linear-gradient(180deg, rgba(125,211,252,.22), rgba(125,211,252,.12));
+      color:var(--text); border:1px solid rgba(125,211,252,.35); border-radius:12px; padding:10px 12px; font-weight:600; cursor:pointer;
+    }
+    button.secondary{background:rgba(255,255,255,.06); border-color:rgba(255,255,255,.1)}
+    main{padding:12px; display:grid; grid-template-rows: 1fr 1fr; gap:12px}
+    .chart-card{background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.06); border-radius:16px; padding:10px; position:relative}
+    .chart-card h4{margin:0 0 6px; font-weight:700; font-size:13px; color:#cfe3ff; letter-spacing:.3px}
+    .scrub{position:absolute; inset:auto 10px 10px 10px; background:rgba(0,0,0,.4); border:1px solid rgba(255,255,255,.1); border-radius:10px; padding:10px}
+    .scrub .time{font-size:12px; color:#cfe3ff; display:flex; justify-content:space-between}
+    .stats{display:grid; grid-template-columns: repeat(5, 1fr); gap:10px; padding:12px; background:rgba(255,255,255,.02); border-top:1px solid rgba(255,255,255,.06)}
+    .kpi{background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.06); border-radius:14px; padding:10px}
+    .kpi h5{margin:0; font-size:12px; color:#cfe3ff}
+    .kpi .v{margin-top:6px; font-size:20px; font-weight:800}
+    .kpi.good .v{color:var(--good)} .kpi.bad .v{color:var(--bad)} .kpi.warn .v{color:var(--warn)}
+    .foot{grid-column:1 / -1; display:flex; justify-content:space-between; align-items:center; padding:6px 12px; font-size:12px; color:#9db0d8}
+    .legend{display:flex; gap:10px; align-items:center}
+    .dot{width:10px; height:10px; border-radius:999px; display:inline-block}
+    .dot.traffic{background:#38bdf8} .dot.ran{background:#a78bfa} .dot.ai{background:#22c55e}
+    .notice{font-size:11px; color:#96a7ce}
+    a{color:#9bdbff; text-decoration:none}
+    .test-toast{position:fixed; right:12px; bottom:12px; background:#0e1631; border:1px solid #2c3d72; color:#cfe1ff; padding:8px 12px; border-radius:10px; display:none}
+    @media (max-width: 1100px){ .frame{grid-template-columns: 340px 1fr} }
+    @media (max-width: 900px){ body{align-items:flex-start} .frame{height: 1200px; aspect-ratio:auto} }
+  </style>
+</head>
+<body>
+<div class="frame" role="application" aria-label="AI & RAN GPU 基地台 ROI 計算機">
+  <header>
+    <h1>AI & RAN GPU 基地台 ROI 計算機｜把成本中心變利潤中心</h1>
+    <div class="badges">
+      <span class="badge">16:9</span>
+      <span class="badge">Keyboard: [Space] 播放 / [R] 重跑</span>
+    </div>
+  </header>
+
+  <!-- 左欄：參數與操作 -->
+  <aside class="col-left" aria-label="參數設定">
+    <div class="panel">
+      <h3>① 流量型態（日夜曲線）</h3>
+      <div class="row">
+        <label for="preset">流量 Preset</label>
+        <select id="preset">
+          <option value="urban">都會商辦（白天高峰、夜低）</option>
+          <option value="residential">住宅區（晚間高峰）</option>
+          <option value="event">活動日（傍晚劇烈波動）</option>
+        </select>
+      </div>
+      <div class="row">
+        <label>曲線強度</label>
+        <input id="amp" type="range" min="0.6" max="1.6" step="0.02" value="1.0" />
+      </div>
+      <div class="hint">夜間流量通常顯著降低，離峰資產活化空間大（設計給尖峰 → 夜深閒置）。</div>
+    </div>
+
+    <div class="panel">
+      <h3>② RAN 與 GPU</h3>
+      <div class="row"><label>GPU 數量（顆）</label><input id="numGPU" type="number" min="1" value="2"></div>
+      <div class="row"><label>GPU TDP（W）</label><input id="tdp" type="number" min="100" value="350"></div>
+      <div class="row"><label>GPU Idle（W）</label><input id="idleW" type="number" min="20" value="50"></div>
+      <div class="row"><label>冷卻/配電係數 PUE</label><input id="pue" type="number" min="1" step="0.05" value="1.2"></div>
+      <div class="row"><label>RAN 最低保留（%）</label><input id="ranFloor" type="number" min="0" max="100" value="20"></div>
+      <div class="row"><label>RAN 需求敏感度</label><input id="ranSlope" type="range" min="0.4" max="1.6" step="0.02" value="1.0"></div>
+      <div class="hint">同一顆 GPU 可在 RAN 與 AI 間動態分配（MIG / orchestration）。</div>
+    </div>
+
+    <div class="panel">
+      <h3>③ AI 出租經濟</h3>
+      <div class="row"><label>AI 租金（$/GPU-hr）</label><input id="price" type="number" min="0" step="0.01" value="1.10"></div>
+      <div class="row"><label>電價（$/kWh）</label><input id="elec" type="number" min="0" step="0.005" value="0.12"></div>
+      <div class="row"><label>平台抽成（%）</label><input id="revShare" type="number" min="0" max="100" value="0"></div>
+      <div class="hint">預設租金 ≈ AWS g5.xlarge（A10G）級別，僅供起手；可自行調高（A100/H100 會更貴）。</div>
+    </div>
+
+    <div class="panel">
+      <h3>操作</h3>
+      <div class="cta">
+        <button id="play">▶ 自動播放 24 小時</button>
+        <button id="reset" class="secondary">↺ 重置</button>
+        <button id="export" class="secondary">⇩ 匯出 CSV</button>
+      </div>
+      <div class="hint">挑戰：一天賺最多錢！最佳成績會存在你的瀏覽器。</div>
+    </div>
+
+    <div class="panel">
+      <h3>說明 / 來源</h3>
+      <div class="hint">
+        ‣ 夜深時把基地台算力出租 → 新收入來源（你的逐字稿主軸）。<br/>
+        ‣ RAN 是能耗大戶（~70–80%），離峰節能與資產活化都有空間。<br/>
+        ‣ 同顆 GPU 可同時承載 RAN+AI，提升利用率 2–3×（NVIDIA AI Aerial）。<br/>
+        <br/>
+        建議把這頁嵌入主簡報的「AI and RAN」章節，串講「成本中心 → 利潤中心」。
+      </div>
+    </div>
+  </aside>
+
+  <!-- 右欄：圖表與時間滑桿 -->
+  <main>
+    <div class="chart-card">
+      <h4>流量與資源分配（24 小時）</h4>
+      <canvas id="chart1" height="140"></canvas>
+      <div class="legend" style="position:absolute; top:10px; right:10px;">
+        <span class="dot traffic"></span><span class="hint">網路流量</span>
+        <span class="dot ran"></span><span class="hint">RAN 佔用</span>
+        <span class="dot ai"></span><span class="hint">AI 出租</span>
+      </div>
+    </div>
+    <div class="chart-card">
+      <h4>現金流（收入 vs. 電費成本）</h4>
+      <canvas id="chart2" height="140"></canvas>
+      <div class="scrub" aria-label="時間滑桿">
+        <div class="time"><span>當前時間</span><span id="clock">00:00</span></div>
+        <input id="time" type="range" min="0" max="1440" step="5" value="0" />
+      </div>
+    </div>
+  </main>
+
+  <section class="stats" aria-label="關鍵指標">
+    <div class="kpi"><h5>AI 出租收入 / 日</h5><div class="v" id="rev">$0.00</div></div>
+    <div class="kpi bad"><h5>電費（增量）/ 日</h5><div class="v" id="cost">$0.00</div></div>
+    <div class="kpi good"><h5>淨利 / 日</h5><div class="v" id="profit">$0.00</div></div>
+    <div class="kpi warn"><h5>利用率提升</h5><div class="v" id="utilUp">+0%</div></div>
+    <div class="kpi"><h5>打破紀錄</h5><div class="v" id="best">$0.00</div></div>
+  </section>
+
+  <div class="foot">
+    <div>提示：空白鍵播放/暫停；R 鍵重跑；用滑桿<strong>從白天拖到黑夜</strong>，看「AI 任務出租中」如何累積收入。</div>
+    <div class="notice">© 2025 – Demo 目的，非財務建議。</div>
+  </div>
+</div>
+
+<!-- ❶ 先載 Chart.js（移除 SRI，使用 defer 確保載入） -->
+<script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+
+<!-- ❷ 主程式（也用 defer，確保在 Chart.js 之後執行） -->
+<script defer>
+(function(){
+  // --- 安全檢查：Chart 是否存在 ---
+  function showFatal(msg){
+    const div = document.createElement('div');
+    div.className = 'test-toast';
+    div.style.display = 'block';
+    div.textContent = msg + '（請檢查網路或 CDN 被擋）';
+    document.body.appendChild(div);
+    console.error(msg);
+  }
+  if (!window.Chart){
+    // 若 CDN 慢，等到 DOMContentLoaded 再檢一次
+    document.addEventListener('DOMContentLoaded', ()=>{
+      if(!window.Chart){ showFatal('載入 Chart.js 失敗：Chart 未定義'); }
+    });
+  }
+
+  // --------- 狀態 ---------
+  const state = {
+    minutes: 0,
+    playing: false,
+    data: [],
+    preset: 'urban',
+    amp: 1.0,
+    numGPU: 2,
+    tdp: 350,
+    idleW: 50,
+    pue: 1.2,
+    ranFloor: 0.20,
+    ranSlope: 1.0,
+    price: 1.10,
+    elec: 0.12,
+    revShare: 0,
+  };
+
+  // --------- 工具 ---------
+  const clamp = (v, a, b)=>Math.min(b, Math.max(a, v));
+  const fmtMoney = v => (v<0?'-':'') + '$' + Math.abs(v).toFixed(2);
+  const pad2 = n => String(n).padStart(2,'0');
+
+  function genTraffic(mins, preset='urban', amp=1){
+    const t = mins/60;
+    let base = 0.18;
+    let peaks = [];
+    if(preset==='urban'){
+      peaks = [[9.5,2.2,0.8],[13.0,1.6,0.6],[18.0,2.5,0.9]];
+    }else if(preset==='residential'){
+      peaks = [[7.5,1.4,0.5],[20.5,2.6,1.0]];
+      base = 0.22;
+    }else{
+      peaks = [[12.0,1.8,0.7],[17.5,0.9,0.4],[21.0,1.4,1.1]];
+      base = 0.20;
+    }
+    let v = base;
+    for(const [mu, sigma, h] of peaks){ v += h * Math.exp(-0.5 * ((t-mu)/sigma)**2); }
+    v = clamp(v*amp, 0, 2.8);
+    return clamp(v/2.8, 0, 1);
+  }
+  function ranShare(traffic, slope=1.0, floor=0.2){ return clamp(floor + slope * 0.8 * traffic, floor, 1); }
+  function gpuPower(util, tdp, idleW, num){ const per = idleW + util * (tdp - idleW); return per * num; }
+
+  function simulate(st){
+    const step = 5;
+    const points = [];
+    let totRev=0, totCost=0, totUtilBase=0, totUtilWithAI=0;
+    for(let m=0;m<1440;m+=step){
+      const traffic = genTraffic(m, st.preset, st.amp);
+      const ran = ranShare(traffic, st.ranSlope, st.ranFloor);
+      const free = clamp(1 - ran, 0, 1);
+      const rev = free * st.numGPU * st.price * (step/60) * (1 - st.revShare/100);
+      const pW_AI = gpuPower(free, st.tdp, st.idleW, st.numGPU) - gpuPower(0, st.tdp, st.idleW, st.numGPU);
+      const kWh = Math.max(pW_AI,0) * (step/60) / 1000 * st.pue;
+      const cost = kWh * st.elec;
+      totUtilBase += ran * st.numGPU * (step/60);
+      totUtilWithAI += (ran + free) * st.numGPU * (step/60);
+      totRev += rev; totCost += Math.max(cost,0);
+      points.push({m, traffic, ran, free, rev, cost});
+    }
+    const profit = totRev - totCost;
+    const utilUp = (totUtilWithAI - totUtilBase) / (st.numGPU*24) * 100;
+    return {points, totRev, totCost, profit, utilUp};
+  }
+
+  // --------- UI 綁定 ---------
+  const el = {
+    preset: document.getElementById('preset'),
+    amp: document.getElementById('amp'),
+    numGPU: document.getElementById('numGPU'),
+    tdp: document.getElementById('tdp'),
+    idleW: document.getElementById('idleW'),
+    pue: document.getElementById('pue'),
+    ranFloor: document.getElementById('ranFloor'),
+    ranSlope: document.getElementById('ranSlope'),
+    price: document.getElementById('price'),
+    elec: document.getElementById('elec'),
+    revShare: document.getElementById('revShare'),
+    time: document.getElementById('time'),
+    clock: document.getElementById('clock'),
+    rev: document.getElementById('rev'),
+    cost: document.getElementById('cost'),
+    profit: document.getElementById('profit'),
+    utilUp: document.getElementById('utilUp'),
+    best: document.getElementById('best'),
+    play: document.getElementById('play'),
+    reset: document.getElementById('reset'),
+    export: document.getElementById('export')
+  };
+
+  function loadBest(){
+    const v = localStorage.getItem('roi-best');
+    el.best.textContent = v ? fmtMoney(parseFloat(v)) : '$0.00';
+  }
+  loadBest();
+
+  // --- 如果 Chart.js 沒載入，直接中止後續繪圖 ---
+  if (!window.Chart) return;
+
+  const ctx1 = document.getElementById('chart1');
+  const ctx2 = document.getElementById('chart2');
+  const labels = Array.from({length:288}, (_,i)=> {
+    const m=i*5, h=Math.floor(m/60), mm=m%60;
+    return pad2(h)+':'+pad2(mm);
+  });
+  const chart1 = new Chart(ctx1, {
+    type:'line',
+    data:{ labels,
+      datasets:[
+        {label:'Traffic', data:Array(288).fill(0), tension:0.3, borderColor:'#38bdf8', backgroundColor:'rgba(56,189,248,.15)', fill:true, borderWidth:2},
+        {label:'RAN', data:Array(288).fill(0), tension:0.3, borderColor:'#a78bfa', backgroundColor:'rgba(167,139,250,.18)', fill:true, borderWidth:2},
+        {label:'AI', data:Array(288).fill(0), tension:0.3, borderColor:'#22c55e', backgroundColor:'rgba(34,197,94,.18)', fill:true, borderWidth:2},
+      ]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false, scales:{
+        y:{min:0, max:1, ticks:{color:'#bcd0ff'}, grid:{color:'rgba(255,255,255,.06)'}},
+        x:{ticks:{display:false}, grid:{display:false}}
+      },
+      plugins:{legend:{display:false}}
+    }
+  });
+  const chart2 = new Chart(ctx2, {
+    type:'line',
+    data:{ labels,
+      datasets:[
+        {label:'收入', data:Array(288).fill(0), borderColor:'#22c55e', backgroundColor:'rgba(34,197,94,.18)', fill:true, borderWidth:2, tension:0.25},
+        {label:'電費', data:Array(288).fill(0), borderColor:'#ef4444', backgroundColor:'rgba(239,68,68,.18)', fill:true, borderWidth:2, tension:0.25},
+      ]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false, scales:{
+        y:{ticks:{color:'#bcd0ff'}, grid:{color:'rgba(255,255,255,.06)'}},
+        x:{ticks:{display:false}, grid:{display:false}}
+      },
+      plugins:{legend:{display:false}}
+    }
+  });
+
+  function recalc(){
+    const sim = simulate(state);
+    state.data = sim.points;
+
+    const traffic = sim.points.map(p=>p.traffic);
+    const ran = sim.points.map(p=>p.ran);
+    const ai = sim.points.map(p=>p.free);
+    chart1.data.datasets[0].data = traffic;
+    chart1.data.datasets[1].data = ran;
+    chart1.data.datasets[2].data = ai;
+    chart1.update('none');
+
+    let cumRev=0, cumCost=0;
+    const revArr=[], costArr=[];
+    for(const p of sim.points){ cumRev+=p.rev; cumCost+=p.cost; revArr.push(cumRev); costArr.push(cumCost); }
+    chart2.data.datasets[0].data = revArr;
+    chart2.data.datasets[1].data = costArr;
+    chart2.update('none');
+
+    el.rev.textContent = fmtMoney(sim.totRev);
+    el.cost.textContent = fmtMoney(sim.totCost);
+    el.profit.textContent = fmtMoney(sim.profit);
+    el.utilUp.textContent = `+${sim.utilUp.toFixed(0)}%`;
+    const best = parseFloat(localStorage.getItem('roi-best')||'0');
+    if(sim.profit > best){
+      localStorage.setItem('roi-best', sim.profit.toFixed(2));
+      loadBest();
+    }
+    updateClock(state.minutes);
+  }
+
+  function updateClock(m){
+    const h = Math.floor(m/60), mm = m%60;
+    el.clock.textContent = `${pad2(h)}:${pad2(mm)}`;
+    const idx = Math.floor(m/5);
+    chart1.setActiveElements([{datasetIndex:0, index: idx}]);
+    chart2.setActiveElements([{datasetIndex:0, index: idx}]);
+    chart1.update('none'); chart2.update('none');
+  }
+
+  const binders = [
+    ['preset','change', v=>state.preset=v],
+    ['amp','input', v=>state.amp=parseFloat(v)],
+    ['numGPU','input', v=>state.numGPU=parseInt(v||'1')],
+    ['tdp','input', v=>state.tdp=parseFloat(v||'350')],
+    ['idleW','input', v=>state.idleW=parseFloat(v||'50')],
+    ['pue','input', v=>state.pue=parseFloat(v||'1.2')],
+    ['ranFloor','input', v=>state.ranFloor=clamp(parseFloat(v||'0')/100,0,0.9)],
+    ['ranSlope','input', v=>state.ranSlope=parseFloat(v||'1.0')],
+    ['price','input', v=>state.price=parseFloat(v||'1.10')],
+    ['elec','input', v=>state.elec=parseFloat(v||'0.12')],
+    ['revShare','input', v=>state.revShare=parseFloat(v||'0')],
+  ];
+  binders.forEach(([id, ev, fn])=>{
+    document.getElementById(id).addEventListener(ev, e=>{ fn(e.target.value); recalc(); });
+  });
+
+  const time = document.getElementById('time');
+  time.addEventListener('input', e=>{ state.minutes = parseInt(e.target.value,10); updateClock(state.minutes); });
+
+  function tick(){
+    if(!state.playing) return;
+    state.minutes += 5;
+    if(state.minutes>1440){ state.minutes=0; state.playing=false; document.getElementById('play').textContent='▶ 自動播放 24 小時'; return; }
+    time.value = state.minutes;
+    updateClock(state.minutes);
+    requestAnimationFrame(()=>setTimeout(tick, 50));
+  }
+  document.getElementById('play').addEventListener('click', ()=>{
+    state.playing = !state.playing;
+    document.getElementById('play').textContent = state.playing?'⏸ 暫停':'▶ 自動播放 24 小時';
+    if(state.playing) tick();
+  });
+  document.getElementById('reset').addEventListener('click', ()=>{
+    state.minutes=0; time.value=0; state.playing=false; document.getElementById('play').textContent='▶ 自動播放 24 小時'; recalc();
+  });
+  document.getElementById('export').addEventListener('click', ()=>{
+    const rows = ['time,traffic,ran_share,ai_share,revenue,cost'];
+    for(const p of state.data){
+      const hh = pad2(Math.floor(p.m/60)), mm = pad2(p.m%60);
+      rows.push(`${hh}:${mm},${p.traffic.toFixed(3)},${p.ran.toFixed(3)},${p.free.toFixed(3)},${p.rev.toFixed(4)},${p.cost.toFixed(4)}`);
+    }
+    const blob = new Blob([rows.join('\n')], {type:'text/csv'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'roi-sim.csv';
+    a.click();
+  });
+
+  window.addEventListener('keydown', (e)=>{
+    if(e.code==='Space'){ e.preventDefault(); document.getElementById('play').click(); }
+    if(e.key==='r' || e.key==='R'){ document.getElementById('reset').click(); }
+    if(e.key==='ArrowRight'){ state.minutes = clamp(state.minutes+5,0,1440); time.value=state.minutes; updateClock(state.minutes); }
+    if(e.key==='ArrowLeft'){ state.minutes = clamp(state.minutes-5,0,1440); time.value=state.minutes; updateClock(state.minutes); }
+  });
+
+  // ---------- 內建測試（新增） ----------
+  function showToast(msg){
+    let t = document.querySelector('.test-toast');
+    if(!t){ t = document.createElement('div'); t.className='test-toast'; document.body.appendChild(t); }
+    t.textContent = msg; t.style.display='block'; setTimeout(()=>t.style.display='none', 2000);
+  }
+  function runTests(){
+    console.group('%cROI Simulator Tests','color:#9bdbff');
+    // T1: 基本模擬輸出長度
+    let s = simulate({...state});
+    console.assert(s.points.length===288,'T1 failed: points length != 288');
+    // T2: Profit 為有限值
+    console.assert(Number.isFinite(s.profit),'T2 failed: profit is not finite');
+    // T3: 提高價格 → 淨利應上升
+    const s2 = simulate({...state, price: state.price*2});
+    console.assert(s2.profit > s.profit, 'T3 failed: profit did not increase when price doubled');
+    // T4: 提高電價 → 淨利應下降
+    const s3 = simulate({...state, elec: state.elec*2});
+    console.assert(s3.profit < s.profit, 'T4 failed: profit did not decrease when electricity price doubled');
+    console.groupEnd();
+    showToast('Self-tests passed ✓');
+  }
+
+  recalc();
+  runTests();
+})();
+</script>
+</body>
+</html>
