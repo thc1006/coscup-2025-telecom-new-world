@@ -1,0 +1,61 @@
+<!-- slides/14-insights-paradigm-shifts.html -->
+<style>
+    .insights-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.5rem;
+        width: 100%;
+    }
+    .insight-card {
+        background-color: rgba(0,0,0,0.3);
+        border-radius: 15px;
+        padding: 1.5rem;
+        border-bottom: 5px solid;
+        text-align: left;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+    .insight-card h4 {
+        font-size: 1.5rem;
+        font-weight: 900;
+        margin-bottom: 0.75rem;
+    }
+    .insight-card p {
+        font-size: 1rem;
+        color: var(--coscup-light);
+        line-height: 1.6;
+        flex-grow: 1;
+    }
+</style>
+<div class="w-full h-full flex flex-col justify-center items-center text-center">
+    <h2 class="text-4xl font-black mb-4" style="color: var(--coscup-purple); text-shadow: 2px 2px 0 var(--coscup-dark);">典範轉移</h2>
+    <h1 class="text-5xl font-black mb-10" style="color: var(--coscup-yellow); text-shadow: 3px 3px 0 var(--coscup-dark);">那些顛覆你想像的觀點</h1>
+
+    <div class="insights-grid">
+        <div class="insight-card" style="border-color: var(--coscup-pink);">
+            <h4 style="color: var(--coscup-pink);">Cloud-native ≠ K8s</h4>
+            <p>Kubernetes 只是引擎，真正的魔法是 KRM 和控制器模式的「宣告式哲學」。</p>
+        </div>
+        <div class="insight-card" style="border-color: var(--coscup-blue);">
+            <h4 style="color: var(--coscup-blue);">Open RAN 救不了電信</h4>
+            <p>光靠開放介面無法解決問題，它反而帶來了「營運複雜性」這個新魔王。</p>
+        </div>
+        <div class="insight-card" style="border-color: var(--coscup-green);">
+            <h4 style="color: var(--coscup-green);">硬體越貴，軟體越值錢</h4>
+            <p>在關稅與供應鏈衝擊下，軟體定義的「彈性」與「自動化」價值更加凸顯。</p>
+        </div>
+        <div class="insight-card" style="border-color: var(--coscup-yellow);">
+            <h4 style="color: var(--coscup-yellow);">GPU 基地台晚上能賺錢</h4>
+            <p>白天跑 RAN，晚上出租算力跑 AI 模型，將「成本中心」變成「利潤中心」。</p>
+        </div>
+        <div class="insight-card" style="border-color: var(--coscup-purple);">
+            <h4 style="color: var(--coscup-purple);">AI 提升邊緣吞吐 280%</h4>
+            <p>AI for RAN 直接解決了最痛的訊號死角問題，將頻譜效率發揮到極致。</p>
+        </div>
+        <div class="insight-card" style="border-color: #e17055;">
+            <h4 style="color: #e17055;">資安：先偷再說</h4>
+            <p>「Harvest now, decrypt later」已是現在進行式，後量子密碼學是必要防禦。</p>
+        </div>
+    </div>
+</div>
