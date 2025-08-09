@@ -1,0 +1,60 @@
+<!-- slides/04-hurdle-openran-disillusion.html -->
+<style>
+    .hype-curve-container { 
+        width: 100%; 
+        max-width: 800px; 
+        height: 300px; 
+        position: relative; 
+    }
+    .hype-curve-path { 
+        fill: none; 
+        stroke: var(--coscup-pink); 
+        stroke-width: 6; 
+        stroke-linecap: round; 
+        stroke-linejoin: round; 
+        /* 使用 filter: drop-shadow 創造霓虹光暈效果 */
+        filter: drop-shadow(0 0 5px var(--coscup-pink)); 
+    }
+    .label { 
+        font-size: 1rem; 
+        font-weight: 700; 
+        fill: var(--coscup-yellow); 
+        text-shadow: 1px 1px 2px var(--coscup-dark);
+    }
+    .dot { 
+        fill: var(--coscup-yellow); 
+        stroke: var(--coscup-dark); 
+        stroke-width: 2; 
+        animation: dot-pulse 2s infinite; 
+    }
+    @keyframes dot-pulse { 
+      0% { r: 8; } 
+      50% { r: 12; } 
+      100% { r: 8; } 
+    }
+</style>
+<div class="w-full h-full flex flex-col justify-center items-center text-center">
+    <h2 class="text-4xl font-black mb-4" style="color: var(--coscup-purple); text-shadow: 2px 2px 0 var(--coscup-dark);">技術瓶頸</h2>
+    <h1 class="text-5xl font-black mb-8" style="color: var(--coscup-yellow); text-shadow: 3px 3px 0 var(--coscup-dark);">Open RAN 的幻滅曲線</h1>
+
+    <div class="hype-curve-container">
+        <svg viewBox="0 0 800 300" class="w-full h-full">
+            <!-- 繪製一條從期望高峰跌落幻滅谷底的曲線 -->
+            <path class="hype-curve-path" d="M 50,250 
+                C 150,250 200,50 300,50 
+                S 400,280 500,280 
+                S 600,150 750,150" />
+            
+            <!-- 在谷底標示一個動態的點 -->
+            <circle class="dot" cx="500" cy="280" r="8" />
+            <text x="430" y="260" class="label">幻滅谷底</text>
+        </svg>
+    </div>
+
+    <p class="mt-4 text-2xl max-w-4xl leading-relaxed">
+        「三年前，Open RAN 是破壞式創新的英雄；<br>三年後，卻變成了採購單上一個乾巴巴的<span class="font-bold text-yellow-300">打勾選項</span>。」
+    </p>
+    <div class="mt-4 text-xl text-gray-300">
+        <span class="font-bold text-pink-400">ROI 卡關</span> 與 <span class="font-bold text-pink-400">整合風險</span> 兩座大山，澆熄了創新的火焰。
+    </div>
+</div>
