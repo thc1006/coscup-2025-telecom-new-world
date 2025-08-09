@@ -1,0 +1,83 @@
+<!-- slides/01-crisis-unsolvable-equation.html -->
+<style>
+    /* 針對此投影片的特定樣式 */
+    .bar-chart-container { 
+        display: flex; 
+        justify-content: center; 
+        align-items: stretch; /* 讓內容垂直對齊 */
+        gap: 4rem; 
+        width: 100%; 
+        height: 300px; 
+        padding: 1rem; 
+    }
+    .bar-wrapper { 
+        display: flex; 
+        flex-direction: column; 
+        align-items: center; 
+        justify-content: space-between; 
+    }
+    .bar { 
+        display: flex; 
+        flex-direction: column; 
+        align-items: center; 
+        justify-content: flex-end; 
+        width: 180px; 
+        flex-grow: 1; 
+    }
+    .bar-label { 
+        font-weight: 700; 
+        font-size: 1.75rem; 
+        color: var(--coscup-light); 
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.7); 
+        margin-top: 1rem; 
+    }
+    .bar-value { 
+        font-weight: 900; 
+        font-size: 3rem; 
+        color: var(--coscup-yellow); 
+        text-shadow: 2px 2px 0 var(--coscup-dark); 
+        margin-bottom: 1rem; 
+    }
+    #traffic-bar-fill { 
+        background: linear-gradient(to top, var(--coscup-pink), #d63031); 
+        width: 100%; 
+        height: 100%; 
+        border-radius: 10px 10px 0 0; 
+        border: 2px solid var(--coscup-dark); 
+        box-shadow: inset 0 0 10px rgba(0,0,0,0.5); 
+    }
+    #revenue-bar-fill { 
+        background: linear-gradient(to top, var(--coscup-green), #00b894); 
+        width: 100%; 
+        height: 5%; 
+        border-radius: 10px 10px 0 0; 
+        border: 2px solid var(--coscup-dark); 
+        box-shadow: inset 0 0 10px rgba(0,0,0,0.5); 
+    }
+</style>
+<div class="w-full h-full flex flex-col justify-center items-center text-center">
+    <h2 class="text-4xl font-black mb-4" style="color: var(--coscup-green); text-shadow: 2px 2px 0 var(--coscup-dark);">危機的開端</h2>
+    <h1 class="text-5xl font-black mb-10" style="color: var(--coscup-yellow); text-shadow: 3px 3px 0 var(--coscup-dark);">無法破解的方程式</h1>
+    
+    <div class="bar-chart-container">
+        <div class="bar-wrapper">
+            <div class="bar-value">30x</div>
+            <div class="bar">
+                <div id="traffic-bar-fill"></div>
+            </div>
+            <div class="bar-label">流量增長</div>
+        </div>
+        <div class="bar-wrapper">
+            <div class="bar-value">~1x</div>
+            <div class="bar">
+                <div id="revenue-bar-fill"></div>
+            </div>
+            <div class="bar-label">營收增長</div>
+        </div>
+    </div>
+
+    <p class="mt-10 text-2xl max-w-4xl leading-relaxed">
+        NVIDIA 指出：「流量呈指數級增長 (10-30倍)，但營收卻持平。」<br>
+        這就像貨運公司被要求送 <span class="font-bold text-yellow-300">30 倍</span>的貨，卻只拿到<span class="font-bold text-yellow-300">一樣</span>的錢。
+    </p>
+</div>
