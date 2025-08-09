@@ -1,0 +1,103 @@
+<!-- slides/06-hurdle-babel-tower.html -->
+<style>
+    .integration-grid { 
+        display: grid; 
+        grid-template-columns: 1fr; 
+        grid-template-rows: 1fr auto 1fr; 
+        gap: 1rem; 
+        width: 100%; 
+        height: 350px; 
+    }
+    .team-row { 
+        display: flex; 
+        justify-content: space-around; 
+        align-items: center; 
+    }
+    .team-card { 
+        background-color: rgba(0,0,0,0.3); 
+        border-radius: 15px; 
+        padding: 0.5rem 1rem; 
+        border: 2px solid; 
+        text-align: center; 
+    }
+    .team-title { 
+        font-weight: 900; 
+        font-size: 1.25rem; 
+    }
+    .team-lang { 
+        font-family: monospace; 
+        font-size: 0.9rem; 
+    }
+    .integration-point { 
+        position: relative; 
+        display: flex; 
+        justify-content: center; 
+        align-items: center; 
+        height: 150px; 
+    }
+    .piece { 
+        position: absolute; 
+        width: 60px; 
+        height: 60px; 
+        background-size: contain; 
+        background-repeat: no-repeat; 
+        background-position: center; 
+        transition: all 0.5s ease-out; 
+    }
+    /* 使用內聯 SVG 作為背景圖片，避免外部依賴 */
+    .piece-telco { 
+        background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M50 0 L100 25 L100 75 L50 100 L0 75 L0 25 Z" fill="%23ff7675"/></svg>'); 
+    }
+    .piece-cloud { 
+        background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect x="0" y="0" width="100" height="100" fill="%2374b9ff"/></svg>'); 
+    }
+    .piece-vendor { 
+        background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="50" fill="%2355efc4"/></svg>'); 
+    }
+    .error-spark { 
+        position: absolute; 
+        width: 100px; 
+        height: 100px; 
+        background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M50 0 L61 39 L100 39 L69 61 L79 100 L50 75 L21 100 L31 61 L0 39 L39 39 Z" fill="%23fdcb6e"/></svg>'); 
+        opacity: 0; 
+        animation: boom 0.5s 1s forwards; 
+    }
+    @keyframes boom { 
+        0% { transform: scale(0); opacity: 0; } 
+        50% { opacity: 1; } 
+        100% { transform: scale(1.5); opacity: 0; } 
+    }
+</style>
+<div class="w-full h-full flex flex-col justify-center items-center text-center">
+    <h2 class="text-4xl font-black mb-4" style="color: var(--coscup-purple); text-shadow: 2px 2px 0 var(--coscup-dark);">根本原因</h2>
+    <h1 class="text-5xl font-black mb-6" style="color: var(--coscup-yellow); text-shadow: 3px 3px 0 var(--coscup-dark);">整合的惡夢：高異質性的「雞同鴨講」</h1>
+    
+    <div class="integration-grid">
+        <div class="team-row">
+            <div class="team-card" style="border-color: #ff7675;">
+                <div class="team-title" style="color: #ff7675;">電信商</div>
+                <div class="team-lang">「給我 5 個 9 的 SLA！」</div>
+            </div>
+            <div class="team-card" style="border-color: #74b9ff;">
+                <div class="team-title" style="color: #74b9ff;">雲端商</div>
+                <div class="team-lang">「CRD 開出來，GitOps 推下去！」</div>
+            </div>
+        </div>
+        <div class="integration-point">
+            <div class="piece piece-telco" style="transform: translate(-100px, -40px);"></div>
+            <div class="piece piece-cloud" style="transform: translate(100px, -40px);"></div>
+            <div class="piece piece-vendor" style="transform: translate(0, 80px);"></div>
+            <div class="error-spark"></div>
+        </div>
+        <div class="team-row justify-center">
+            <div class="team-card" style="border-color: #55efc4;">
+                <div class="team-title" style="color: #55efc4;">設備商</div>
+                <div class="team-lang">「照我的 Spec 來兜！」</div>
+            </div>
+        </div>
+    </div>
+
+    <p class="mt-4 text-2xl max-w-4xl leading-relaxed">
+        各陣營都用自己的「天書」和規格，導致整合點直接<span class="font-bold text-red-400">大爆炸</span>，變成一場災難性的<span class="font-bold text-yellow-300">翻譯惡夢</span>。
+    </p>
+</div>
