@@ -1,110 +1,100 @@
 <!-- slides/13-solution-closed-loop.html -->
 <style>
-    .vertical-flow-container {
+    .sequence-diagram-container {
         width: 100%;
-        max-width: 900px;
+        height: 420px;
+        display: flex;
+        justify-content: space-around;
+        position: relative;
+    }
+    .lifeline {
+        height: 100%;
         display: flex;
         flex-direction: column;
         align-items: center;
     }
-    .flow-item {
-        display: flex;
-        align-items: center;
-        width: 100%;
-    }
-    .flow-actor {
-        width: 200px;
-        flex-shrink: 0;
-        text-align: center;
-    }
-    .actor-box {
+    .actor {
         background-color: rgba(0,0,0,0.5);
         border-radius: 10px;
         padding: 0.5rem 1rem;
         border: 2px solid;
         font-weight: 900;
         font-size: 1.1rem;
-        display: inline-block;
+        white-space: nowrap;
     }
-    .flow-arrow {
-        width: 60px;
-        flex-shrink: 0;
+    .timeline {
+        width: 4px;
+        height: 100%;
+        background-image: linear-gradient(to bottom, #636e72 60%, transparent 40%);
+        background-size: 1px 10px;
+        flex-grow: 1;
+    }
+    .message-arrow {
+        position: absolute;
         display: flex;
-        justify-content: center;
         align-items: center;
         color: var(--coscup-light);
     }
-    .flow-action {
-        background-color: rgba(0,0,0,0.3);
-        border-radius: 15px;
-        padding: 1rem 1.5rem;
-        border-left: 5px solid;
-        text-align: left;
+    .message-arrow .arrow-body {
+        height: 3px;
+        background-color: currentColor;
         flex-grow: 1;
     }
-    .action-title {
-        font-weight: 900;
-        font-size: 1.25rem;
-        margin-bottom: 0.25rem;
+    .message-arrow .arrow-head {
+        width: 0; 
+        height: 0; 
+        border-top: 8px solid transparent;
+        border-bottom: 8px solid transparent;
+        border-left: 12px solid currentColor;
     }
-    .action-desc {
+    .message-label {
+        position: absolute;
+        top: -25px;
+        left: 50%;
+        transform: translateX(-50%);
         font-size: 0.9rem;
-        color: #b2bec3;
+        font-weight: bold;
+        background: rgba(45, 52, 54, 0.8);
+        padding: 2px 6px;
+        border-radius: 4px;
+        white-space: nowrap;
     }
-    .down-arrow {
-        width: 40px;
-        height: 40px;
-        color: var(--coscup-light);
-        opacity: 0.7;
-        margin: 0.5rem 0;
+    .message-label .step-num {
+        display: inline-block;
+        background-color: var(--coscup-yellow);
+        color: var(--coscup-dark);
+        border-radius: 50%;
+        width: 20px;
+        height: 20px;
+        text-align: center;
+        line-height: 20px;
+        font-size: 0.8rem;
+        margin-right: 5px;
     }
 </style>
 <div class="w-full h-full flex flex-col justify-center items-center text-center">
     <h2 class="text-4xl font-black mb-4" style="color: var(--coscup-green); text-shadow: 2px 2px 0 var(--coscup-dark);">終極目標</h2>
     <h1 class="text-5xl font-black mb-6" style="color: var(--coscup-yellow); text-shadow: 3px 3px 0 var(--coscup-dark);">AI 驅動的閉環自動化 (Closed-Loop)</h1>
 
-    <div class="vertical-flow-container">
-        <!-- Step 1 -->
-        <div class="flow-item">
-            <div class="flow-actor"><div class="actor-box" style="border-color: var(--coscup-pink); color: var(--coscup-pink);">線上網路</div></div>
-            <div class="flow-arrow"></div>
-            <div class="flow-action" style="border-color: var(--coscup-purple);">
-                <h4 class="action-title" style="color: var(--coscup-purple);">1. 觀測 (Observe)</h4>
-                <p class="action-desc">監控系統從線上網路持續收集 Telemetry 數據 (Metrics, Logs, Traces)。</p>
-            </div>
-        </div>
-        <svg class="down-arrow" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 13.5 12 21m0 0-7.5-7.5M12 21V3" /></svg>
-        
-        <!-- Step 2 -->
-        <div class="flow-item">
-            <div class="flow-actor"><div class="actor-box" style="border-color: var(--coscup-yellow); color: var(--coscup-yellow);">AI/ML 平台</div></div>
-            <div class="flow-arrow"></div>
-            <div class="flow-action" style="border-color: var(--coscup-yellow);">
-                <h4 class="action-title" style="color: var(--coscup-yellow);">2. 分析 (Analyze)</h4>
-                <p class="action-desc">AI 模型分析數據，偵測到異常或找到優化機會，並生成新的 KRM 宣告式設定檔。</p>
-            </div>
-        </div>
-        <svg class="down-arrow" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 13.5 12 21m0 0-7.5-7.5M12 21V3" /></svg>
+    <div class="sequence-diagram-container">
+        <!-- Lifelines (Actors) -->
+        <div class="lifeline"><div class="actor" style="border-color: var(--coscup-pink); color: var(--coscup-pink);">網路</div><div class="timeline"></div></div>
+        <div class="lifeline"><div class="actor" style="border-color: var(--coscup-purple); color: var(--coscup-purple);">監控系統</div><div class="timeline"></div></div>
+        <div class="lifeline"><div class="actor" style="border-color: var(--coscup-yellow); color: var(--coscup-yellow);">AI/ML 平台</div><div class="timeline"></div></div>
+        <div class="lifeline"><div class="actor" style="border-color: var(--coscup-blue); color: var(--coscup-blue);">Git Repo</div><div class="timeline"></div></div>
+        <div class="lifeline"><div class="actor" style="border-color: var(--coscup-green); color: var(--coscup-green);">維運人員</div><div class="timeline"></div></div>
+        <div class="lifeline"><div class="actor" style="border-color: #00b894; color: #00b894;">GitOps 控制器</div><div class="timeline"></div></div>
 
-        <!-- Step 3 & 4 -->
-        <div class="flow-item">
-            <div class="flow-actor"><div class="actor-box" style="border-color: var(--coscup-green); color: var(--coscup-green);">維運人員</div></div>
-            <div class="flow-arrow"></div>
-            <div class="flow-action" style="border-color: var(--coscup-blue);">
-                <h4 class="action-title" style="color: var(--coscup-blue);">3 & 4. 提案與簽核</h4>
-                <p class="action-desc">AI 將新設定以 `Git Pull Request` 形式提交。維運人員進行審核 (Review)，確保變更的安全性與合規性後，合併 (Merge) 到主分支。</p>
-            </div>
-        </div>
-        <svg class="down-arrow" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 13.5 12 21m0 0-7.5-7.5M12 21V3" /></svg>
-
-        <!-- Step 5 & 6 -->
-        <div class="flow-item">
-            <div class="flow-actor"><div class="actor-box" style="border-color: #00b894; color: #00b894;">GitOps 控制器</div></div>
-            <div class="flow-arrow"></div>
-            <div class="flow-action" style="border-color: #00b894;">
-                <h4 class="action-title" style="color: #00b894;">5 & 6. 執行與調節</h4>
-                <p class="action-desc">控制器偵測到 Git 更新後，自動同步 (Sync) 並套用 (Apply) 新設定至線上網路，完成閉環。</p>
-            </div>
-        </div>
+        <!-- Messages (Interactions) -->
+        <div class="message-arrow" style="top: 50px; left: 8%; width: 16%; color: var(--coscup-purple);"><div class="message-label"><span class="step-num">1</span>持續收集 Telemetry</div><div class="arrow-body"></div><div class="arrow-head"></div></div>
+        <div class="message-arrow" style="top: 100px; left: 25%; width: 16%; color: var(--coscup-yellow);"><div class="message-label"><span class="step-num">2</span>分析數據，偵測異常</div><div class="arrow-body"></div><div class="arrow-head"></div></div>
+        <div class="message-arrow" style="top: 150px; left: 42%; width: 16%; color: var(--coscup-blue);"><div class="message-label"><span class="step-num">3</span>發起 Pull Request</div><div class="arrow-body"></div><div class="arrow-head"></div></div>
+        <div class="message-arrow" style="top: 200px; left: 59%; width: 16%; color: var(--coscup-green);"><div class="message-label"><span class="step-num">4</span>審核 (Review) & 合併</div><div class="arrow-body"></div><div class="arrow-head"></div></div>
+        <div class="message-arrow" style="top: 250px; left: 75%; width: 16%; color: #00b894;"><div class="message-label"><span class="step-num">5</span>偵測到變更 (Sync)</div><div class="arrow-body"></div><div class="arrow-head"></div></div>
+        <div class="message-arrow" style="top: 300px; right: 8%; width: 84%; color: var(--coscup-pink); flex-direction: row-reverse;"><div class="message-label" style="top: auto; bottom: -25px;"><span class="step-num">6</span>套用新設定至網路</div><div class="arrow-body"></div><div class="arrow-head" style="transform: rotate(180deg);"></div></div>
     </div>
+
+    <p class="mt-4 text-2xl max-w-4xl leading-relaxed">
+        一個<span class="font-bold text-yellow-300">自我進化、自我修復、自我優化</span>的智慧網路誕生了。
+    </p>
 </div>
