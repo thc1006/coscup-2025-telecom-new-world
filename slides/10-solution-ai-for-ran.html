@@ -1,0 +1,84 @@
+<!-- slides/10-solution-ai-for-ran.html -->
+<style>
+    .ai-for-ran-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 3rem;
+        width: 100%;
+    }
+    .signal-viz {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 300px;
+    }
+    .signal-bars {
+        display: flex;
+        align-items: flex-end;
+        height: 80px;
+        gap: 6px;
+    }
+    .bar {
+        width: 25px;
+        background-color: #636e72;
+        border-radius: 4px;
+        transition: all 0.5s ease-in-out;
+    }
+    .bar-1 { height: 20%; }
+    .bar-2 { height: 40%; }
+    .bar-3 { height: 60%; }
+    .bar-4 { height: 80%; }
+    .bar-5 { height: 100%; }
+
+    .signal-after .bar {
+        background-color: var(--coscup-green);
+    }
+
+    .boost-arrow {
+        font-size: 5rem;
+        font-weight: 900;
+        color: var(--coscup-yellow);
+        text-shadow: 3px 3px 0 var(--coscup-dark);
+        padding: 0 2rem;
+    }
+</style>
+<div class="w-full h-full flex flex-col justify-center items-center text-center">
+    <h2 class="text-4xl font-black mb-4" style="color: var(--coscup-green); text-shadow: 2px 2px 0 var(--coscup-dark);">解方登場</h2>
+    <h1 class="text-5xl font-black mb-8" style="color: var(--coscup-yellow); text-shadow: 3px 3px 0 var(--coscup-dark);">AI for RAN：為網路賦能，提升頻譜效率</h1>
+
+    <div class="ai-for-ran-container">
+        <!-- Before -->
+        <div class="signal-viz">
+            <div class="signal-bars">
+                <div class="bar bar-1 bg-red-500"></div>
+                <div class="bar bar-2"></div>
+                <div class="bar bar-3"></div>
+                <div class="bar bar-4"></div>
+                <div class="bar bar-5"></div>
+            </div>
+            <p class="mt-4 text-xl font-bold">傳統網路的訊號死角</p>
+        </div>
+
+        <!-- Boost -->
+        <div class="boost-arrow">+280%</div>
+
+        <!-- After -->
+        <div class="signal-viz">
+            <div class="signal-bars signal-after">
+                <div class="bar bar-1"></div>
+                <div class="bar bar-2"></div>
+                <div class="bar bar-3"></div>
+                <div class="bar bar-4"></div>
+                <div class="bar bar-5"></div>
+            </div>
+            <p class="mt-4 text-xl font-bold">AI 智慧優化後</p>
+        </div>
+    </div>
+
+    <div class="mt-8 text-2xl max-w-4xl leading-relaxed bg-black bg-opacity-20 p-6 rounded-xl border-2 border-cyan-400">
+        <p class="mb-2"><strong class="text-cyan-300">殺手級實證 (Sina XG 案例):</strong></p>
+        <p>透過 AI 進行小區間干擾協調，<br>小區邊緣 (Cell Edge) 的吞吐量提升了驚人的 <span class="text-yellow-300 font-bold text-4xl">280%</span>！</p>
+        <p class="text-xl mt-4 text-gray-300">這等於直接解決了最惱人的「收訊不良」問題，把頻譜效率壓榨到極致。</p>
+    </div>
+</div>
