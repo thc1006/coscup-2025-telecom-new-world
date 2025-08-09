@@ -9,13 +9,31 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&family=Poppins:wght@700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/style.css">
+    <style>
+        /* 額外針對新的啟動畫面進行樣式調整 */
+        #intro-screen {
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+        #intro-logo {
+            width: 50%;
+            max-width: 400px;
+            animation: float 4s ease-in-out infinite, pulse-light 2s ease-in-out infinite;
+            filter: drop-shadow(0 0 20px rgba(253, 203, 110, 0.7)); /* 讓 Logo 有發光感 */
+        }
+        @keyframes pulse-light {
+            0% { filter: drop-shadow(0 0 20px rgba(253, 203, 110, 0.7)); }
+            50% { filter: drop-shadow(0 0 35px rgba(253, 203, 110, 1)); }
+            100% { filter: drop-shadow(0 0 20px rgba(253, 203, 110, 0.7)); }
+        }
+    </style>
 </head>
 <body>
 
-    <!-- 啟動畫面 -->
-    <div id="intro-screen">
-        <img id="intro-image" src="https://storage.googleapis.com/gemini-prod/images/image_0ef20e.jpg-7ca8bf2f-898c-4809-9554-4bebb226c9d5" alt="COSCUP 2025 主視覺" onerror="this.onerror=null;this.src='https://placehold.co/1000x300/6c5ce7/ffffff?text=COSCUP+2025';">
-        <div class="start-prompt">點擊任意處開始</div>
+    <!-- 全新設計的啟動畫面 -->
+    <div id="intro-screen" style="background-image: url('https://raw.githubusercontent.com/thc1006/coscup-2025-telecom-new-world/main/images/banner.png');">
+        <img id="intro-logo" src="https://raw.githubusercontent.com/thc1006/coscup-2025-telecom-new-world/main/images/logo.png" alt="電信新世界 Logo">
     </div>
 
     <!-- 簡報主容器 -->
