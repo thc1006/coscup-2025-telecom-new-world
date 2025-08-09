@@ -5,7 +5,7 @@
         grid-template-columns: 1fr 1fr; 
         gap: 2rem; 
         width: 100%; 
-        align-items: start; 
+        align-items: stretch; /* 讓卡片等高 */
     }
     .cni-card { 
         background-color: rgba(0,0,0,0.3); 
@@ -13,7 +13,9 @@
         padding: 1.5rem; 
         border: 2px solid #636e72; 
         text-align: left; 
-        height: 100%;
+        height: 100%; 
+        display: flex; 
+        flex-direction: column; 
     }
     .cni-card-title { 
         font-size: 1.75rem; 
@@ -26,6 +28,7 @@
     .cni-card ul { 
         list-style-type: none; 
         padding-left: 0; 
+        flex-grow: 1; /* 讓列表填滿空間，將按鈕推到底部 */
     }
     .cni-card li { 
         margin-bottom: 0.75rem; 
@@ -38,6 +41,10 @@
         margin-right: 0.5rem; 
         flex-shrink: 0; 
         margin-top: 2px; 
+    }
+    .view-code-btn { 
+        margin-top: auto; /* 將按鈕推到卡片底部 */
+        align-self: flex-end; /* 按鈕靠右對齊 */
     }
 </style>
 <div class="w-full h-full flex flex-col justify-center items-center text-center">
@@ -56,6 +63,7 @@
                 <li><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-red-300"><path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 0 0 5.636 5.636m12.728 12.728A9 9 0 0 1 5.636 5.636m12.728 12.728L5.636 5.636" /></svg><div><strong class="text-white">硬體無知：</strong>CNI 規格對 SR-IOV、DPDK、NUMA 等高效能硬體特性一無所知。</div></li>
                 <li><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-red-300"><path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 0 0 5.636 5.636m12.728 12.728A9 9 0 0 1 5.636 5.636m12.728 12.728L5.636 5.636" /></svg><div><strong class="text-white">使用者無權：</strong>開發者（最懂應用需求的人）無法在部署時要求特定的網路資源。</div></li>
             </ul>
+            <button class="btn view-code-btn" onclick="openLightbox('https://raw.githubusercontent.com/thc1006/coscup-2025-telecom-new-world/main/images/JSON.png')">查看範例</button>
         </div>
         <!-- 新方法: 使用者為中心 -->
         <div class="cni-card border-green-400">
@@ -68,79 +76,7 @@
                 <li><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-green-300"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg><div><strong class="text-white">智慧調度：</strong>Kubernetes 調度器會與 DRA 驅動溝通，尋找並預留完全匹配的節點與設備。</div></li>
                 <li><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-green-300"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg><div><strong class="text-white">原生整合：</strong>將網卡視為像 GPU 一樣可被宣告的原生資源，徹底解決電信高效能網路需求。</div></li>
             </ul>
-        </div>
-    </div>
-</div>
-<!-- slides/05-hurdle-cni-limitations.html -->
-<style>
-    .cni-container { 
-        display: grid; 
-        grid-template-columns: 1fr 1fr; 
-        gap: 2rem; 
-        width: 100%; 
-        align-items: start; 
-    }
-    .cni-card { 
-        background-color: rgba(0,0,0,0.3); 
-        border-radius: 15px; 
-        padding: 1.5rem; 
-        border: 2px solid #636e72; 
-        text-align: left; 
-        height: 100%;
-    }
-    .cni-card-title { 
-        font-size: 1.75rem; 
-        font-weight: 900; 
-        margin-bottom: 1rem; 
-        display: flex; 
-        align-items: center; 
-        gap: 0.5rem;
-    }
-    .cni-card ul { 
-        list-style-type: none; 
-        padding-left: 0; 
-    }
-    .cni-card li { 
-        margin-bottom: 0.75rem; 
-        display: flex; 
-        align-items: start; 
-    }
-    .cni-card li svg { 
-        width: 24px; 
-        height: 24px; 
-        margin-right: 0.5rem; 
-        flex-shrink: 0; 
-        margin-top: 2px; 
-    }
-</style>
-<div class="w-full h-full flex flex-col justify-center items-center text-center">
-    <h2 class="text-4xl font-black mb-4" style="color: var(--coscup-purple); text-shadow: 2px 2px 0 var(--coscup-dark);">技術瓶頸</h2>
-    <h1 class="text-5xl font-black mb-8" style="color: var(--coscup-yellow); text-shadow: 3px 3px 0 var(--coscup-dark);">CNI 的極限</h1>
-    
-    <div class="cni-container">
-        <!-- 舊方法: 管理員為中心 -->
-        <div class="cni-card border-red-400">
-            <h3 class="cni-card-title text-red-400">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-8 h-8"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" /></svg>
-                舊方法：管理員為中心
-            </h3>
-            <ul>
-                <li><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-red-300"><path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 0 0 5.636 5.636m12.728 12.728A9 9 0 0 1 5.636 5.636m12.728 12.728L5.636 5.636" /></svg><div><strong class="text-white">靜態設定：</strong>管理員預先寫死一份 JSON 設定檔，所有節點一體適用，缺乏彈性。</div></li>
-                <li><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-red-300"><path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 0 0 5.636 5.636m12.728 12.728A9 9 0 0 1 5.636 5.636m12.728 12.728L5.636 5.636" /></svg><div><strong class="text-white">硬體無知：</strong>CNI 規格對 SR-IOV、DPDK、NUMA 等高效能硬體特性一無所知。</div></li>
-                <li><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-red-300"><path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 0 0 5.636 5.636m12.728 12.728A9 9 0 0 1 5.636 5.636m12.728 12.728L5.636 5.636" /></svg><div><strong class="text-white">使用者無權：</strong>開發者（最懂應用需求的人）無法在部署時要求特定的網路資源。</div></li>
-            </ul>
-        </div>
-        <!-- 新方法: 使用者為中心 -->
-        <div class="cni-card border-green-400">
-            <h3 class="cni-card-title text-green-400">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-8 h-8"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
-                新方法：使用者為中心
-            </h3>
-            <ul>
-                <li><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-green-300"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg><div><strong class="text-white">動態請求：</strong>應用程式透過 <code class="bg-gray-700 text-yellow-300 px-1 rounded">ResourceClaim</code> 宣告所需資源的「屬性」。</div></li>
-                <li><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-green-300"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg><div><strong class="text-white">智慧調度：</strong>Kubernetes 調度器會與 DRA 驅動溝通，尋找並預留完全匹配的節點與設備。</div></li>
-                <li><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-green-300"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg><div><strong class="text-white">原生整合：</strong>將網卡視為像 GPU 一樣可被宣告的原生資源，徹底解決電信高效能網路需求。</div></li>
-            </ul>
+            <button class="btn view-code-btn" onclick="openLightbox('https://raw.githubusercontent.com/thc1006/coscup-2025-telecom-new-world/main/images/YAML.png')">查看範例</button>
         </div>
     </div>
 </div>
