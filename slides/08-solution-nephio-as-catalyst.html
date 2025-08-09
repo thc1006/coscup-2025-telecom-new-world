@@ -1,102 +1,89 @@
 <!-- slides/08-solution-nephio-as-catalyst.html -->
 <style>
-    .pipeline-container {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        width: 100%;
-        position: relative;
-        padding: 2rem 0;
+    .pipeline-container { 
+        display: flex; 
+        justify-content: space-between; 
+        align-items: stretch; 
+        width: 100%; 
+        position: relative; 
+        padding: 2rem 0; 
+        gap: 4%; 
     }
-    .pipeline-step {
-        background-color: rgba(0,0,0,0.3);
-        border-radius: 15px;
-        border: 2px solid;
-        width: 22%;
-        height: 250px;
-        padding: 1.5rem 1rem;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-        z-index: 2;
+    .pipeline-step { 
+        background-color: rgba(0,0,0,0.3); 
+        border-radius: 15px; 
+        border: 2px solid; 
+        width: 22%; 
+        padding: 1.5rem 1rem; 
+        display: flex; 
+        flex-direction: column; 
+        align-items: center; 
+        text-align: center; 
+        z-index: 2; 
     }
-    .step-number {
-        background-color: white;
-        color: var(--coscup-dark);
-        border-radius: 50%;
-        width: 40px;
-        height: 40px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        font-weight: 900;
-        font-size: 1.5rem;
-        border: 2px solid var(--coscup-dark);
-        margin-bottom: 1rem;
+    .step-number { 
+        background-color: white; 
+        color: var(--coscup-dark); 
+        border-radius: 50%; 
+        width: 40px; 
+        height: 40px; 
+        display: flex; 
+        justify-content: center; 
+        align-items: center; 
+        font-weight: 900; 
+        font-size: 1.5rem; 
+        border: 2px solid var(--coscup-dark); 
+        margin-bottom: 1rem; 
     }
-    .step-title {
-        font-weight: 900;
-        font-size: 1.5rem;
-        margin-bottom: 0.5rem;
+    .step-title { 
+        font-weight: 900; 
+        font-size: 1.5rem; 
+        margin-bottom: 0.5rem; 
     }
-    .step-description {
-        font-size: 1rem;
-        color: var(--coscup-light);
+    .step-description { 
+        font-size: 1rem; 
+        color: var(--coscup-light); 
+        flex-grow: 1; 
     }
-    .pipeline-arrow {
-        position: absolute;
-        top: 50%;
-        transform: translateY(-50%);
-        color: var(--coscup-light);
-        opacity: 0.8;
-        z-index: 1;
+    .pipeline-arrow { 
+        position: absolute; 
+        top: 50%; 
+        transform: translateY(-50%); 
+        color: var(--coscup-light); 
+        opacity: 0.8; 
+        z-index: 1; 
+    }
+    .view-pr-btn { 
+        margin-top: 1rem; 
     }
 </style>
 <div class="w-full h-full flex flex-col justify-center items-center text-center">
     <h2 class="text-4xl font-black mb-4" style="color: var(--coscup-green); text-shadow: 2px 2px 0 var(--coscup-dark);">解方登場</h2>
     <h1 class="text-5xl font-black mb-8" style="color: var(--coscup-yellow); text-shadow: 3px 3px 0 var(--coscup-dark);">Nephio 催化劑：自動化的一條龍產線</h1>
-
     <div class="pipeline-container">
-        <!-- Step 1: Clone -->
         <div class="pipeline-step" style="border-color: var(--coscup-pink);">
             <div class="step-number" style="background-color: var(--coscup-pink);">1</div>
             <h3 class="step-title" style="color: var(--coscup-pink);">抓公版 (Clone)</h3>
             <p class="step-description">從版控庫抓一份團隊認證過的乾淨公版設定 (Blueprint)。</p>
         </div>
-
-        <!-- Arrow 1 -->
-        <svg class="pipeline-arrow" style="left: 21%; width: 8%;" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25 21 12m0 0-3.75 3.75M21 12H3" /></svg>
-
-        <!-- Step 2: Hydrate -->
+        <svg class="pipeline-arrow" style="left: 22%; width: 4%;" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25 21 12m0 0-3.75 3.75M21 12H3" /></svg>
         <div class="pipeline-step" style="border-color: var(--coscup-blue);">
             <div class="step-number" style="background-color: var(--coscup-blue);">2</div>
             <h3 class="step-title" style="color: var(--coscup-blue);">灌參數 (Hydrate)</h3>
             <p class="step-description">把各站點的客製化參數 (IP, VLAN 等) 自動灌進去，把公版變成每個點專屬的設定檔。</p>
         </div>
-
-        <!-- Arrow 2 -->
-        <svg class="pipeline-arrow" style="left: 46%; width: 8%;" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25 21 12m0 0-3.75 3.75M21 12H3" /></svg>
-
-        <!-- Step 3: Approve -->
+        <svg class="pipeline-arrow" style="left: 48%; width: 4%;" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25 21 12m0 0-3.75 3.75M21 12H3" /></svg>
         <div class="pipeline-step" style="border-color: var(--coscup-green);">
             <div class="step-number" style="background-color: var(--coscup-green);">3</div>
             <h3 class="step-title" style="color: var(--coscup-green);">真人簽核 (Approve)</h3>
-            <p class="step-description">用 `Git Pull Request` 的方式送審，讓大家 review 過，留下完整紀錄，誰都賴不掉。</p>
+            <p class="step-description">用 `Git Pull Request` 的方式送審，讓大家 review 過，留下完整紀錄。</p>
+            <button class="btn view-pr-btn" style="padding: 0.25rem 0.75rem; font-size: 0.9rem;" onclick="openLightbox('https://raw.githubusercontent.com/thc1006/coscup-2025-telecom-new-world/main/images/PR.png')">查看 PR 範例</button>
         </div>
-
-        <!-- Arrow 3 -->
-        <svg class="pipeline-arrow" style="left: 71%; width: 8%;" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25 21 12m0 0-3.75 3.75M21 12H3" /></svg>
-
-        <!-- Step 4: Actuate -->
+        <svg class="pipeline-arrow" style="left: 74%; width: 4%;" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25 21 12m0 0-3.75 3.75M21 12H3" /></svg>
         <div class="pipeline-step" style="border-color: var(--coscup-yellow);">
             <div class="step-number" style="background-color: var(--coscup-yellow);">4</div>
             <h3 class="step-title" style="color: var(--coscup-yellow);">上線部署 (Actuate)</h3>
-            <p class="step-description">`GitOps` 工具看到更新就自動推上線，然後一直盯著，確保它跟 `Git` 上的版本一模一樣，不准走鐘。</p>
+            <p class="step-description">`GitOps` 工具看到更新就自動推上線，並持續盯著，確保不走鐘。</p>
         </div>
     </div>
-
-    <p class="mt-8 text-2xl max-w-4xl leading-relaxed">
-        Nephio 就像是「強力膠」，用 <span class="font-bold text-cyan-300">Kubernetes</span> 當共通語言，把「<span class="font-bold text-yellow-300">把設定檔當 Code 管</span> (Configuration as Data)」的 `GitOps` 流程搞定。
-    </p>
 </div>
