@@ -134,3 +134,32 @@ document.addEventListener('keydown', (e) => {
         prevSlide();
     }
 });
+
+
+// --- Lightbox (燈箱) 功能 ---
+
+// 創建一個 Lightbox 元素並附加到 body
+const lightbox = document.createElement('div');
+lightbox.id = 'lightbox';
+lightbox.classList.add('lightbox-overlay');
+lightbox.innerHTML = `<div class="lightbox-content"><img src="" alt="Lightbox Image"></div>`;
+document.body.appendChild(lightbox);
+
+const lightboxImage = lightbox.querySelector('img');
+
+/**
+ * Opens the lightbox with a specific image.
+ * @param {string} imageUrl - The URL of the image to display.
+ */
+function openLightbox(imageUrl) {
+    lightboxImage.src = imageUrl;
+    lightbox.classList.add('visible');
+}
+
+// 點擊燈箱背景時關閉它
+lightbox.addEventListener('click', () => {
+    lightbox.classList.remove('visible');
+});
+
+// 將 openLightbox 函式附加到 window 物件，這樣 HTML 中的 onclick 才能找到它
+window.openLightbox = openLightbox;
