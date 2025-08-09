@@ -1,0 +1,359 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DRA 技術深潛｜資源調度模擬器 (可部署 GitHub Pages)</title>
+  <meta name="description" content="互動式 DRA (Dynamic Resource Allocation) 資源調度模擬器。體驗宣告式請求、智慧調度、可分攤可保證的頻寬分配，並與傳統 CNI 行為對照。" />
+  <style>
+    :root{
+      --bg:#0b0f17; --panel:#111827; --muted:#5b6b8a; --text:#e5ecff; --acc:#6ee7ff; --ok:#22c55e; --warn:#f59e0b; --err:#ef4444; --card:#0f172a; --chip:#1f2937; --shadow:0 10px 30px rgba(0,0,0,.35);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0; background:radial-gradient(1200px 600px at 70% -20%, #12203a 0%, #0b0f17 40%, #0b0f17 100%); color:var(--text); font:16px/1.45 system-ui, -apple-system, Segoe UI, Roboto, Noto Sans TC, "PingFang TC", "Hiragino Sans", Arial, sans-serif;}
+    a{color:var(--acc); text-decoration:none}
+    .wrap{max-width:1500px; margin:18px auto; padding:0 18px}
+    header{display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:12px}
+    .brand{display:flex; align-items:center; gap:12px}
+    .brand h1{font-size:20px; margin:0}
+    .brand .pill{font-size:12px; color:#9fb3ff; background:#0d1324; border:1px solid #233056; padding:3px 8px; border-radius:999px}
+    .controls{display:flex; flex-wrap:wrap; gap:8px}
+    button, .btn{background:#16213a; color:var(--text); border:1px solid #2b3c66; border-radius:10px; padding:10px 14px; cursor:pointer; transition:.2s; box-shadow:var(--shadow)}
+    button:hover{transform:translateY(-1px); border-color:#3c5aa8}
+    button.ghost{background:transparent; border-color:#33405f}
+    button.danger{border-color:#6b1d24; background:#291317}
+    button.primary{background:linear-gradient(180deg,#0b5c89,#0a4b6d); border-color:#0e6ea1}
+    .stage{position:relative; aspect-ratio:16/9; width:100%; background:linear-gradient(180deg, #0a1222, #0a0f1b); border:1px solid #1f2a44; border-radius:16px; overflow:hidden; box-shadow:var(--shadow)}
+    .grid{display:grid; grid-template-columns:340px 1fr; height:100%}
+    .sidebar{background:linear-gradient(180deg,#0b1222,#0a0e19); border-right:1px solid #1a2542; padding:16px; overflow:auto}
+    .main{position:relative; padding:16px; overflow:auto}
+    h2{font-size:16px; margin:12px 0 8px}
+    .card{background:var(--card); border:1px solid #1b2541; border-radius:14px; padding:12px; margin-bottom:10px; box-shadow:var(--shadow)}
+    .row{display:flex; gap:8px; align-items:center}
+    .row > *{flex:1}
+    label{font-size:12px; color:#9fb3ff}
+    input[type="text"], input[type="number"], select{width:100%; background:#0c1326; color:var(--text); border:1px solid #29365b; border-radius:10px; padding:10px}
+    .small{font-size:12px; color:var(--muted)}
+    .hint{font-size:12px; color:#9fb3ff}
+    .chips{display:flex; flex-wrap:wrap; gap:6px}
+    .chip{background:var(--chip); border:1px solid #27314a; color:#bcd1ff; padding:4px 8px; border-radius:999px; font-size:12px}
+    .columns{display:grid; grid-template-columns:repeat(3, 1fr); gap:12px; align-items:start}
+    .node{background:#0b1427; border:1px solid #213157; border-radius:14px; padding:12px; min-height:220px}
+    .node h3{margin:0 0 6px 0; font-size:14px}
+    .meter{height:10px; background:#0d1a33; border:1px solid #1f305a; border-radius:999px; overflow:hidden; margin:8px 0 12px}
+    .meter > div{height:100%; background:linear-gradient(90deg, #2dd4bf, #60a5fa)}
+    .pod{background:#0e1a30; border:1px solid #2a3a61; border-radius:10px; padding:8px; margin:8px 0; display:flex; justify-content:space-between; align-items:center; gap:6px}
+    .badge{font-size:11px; padding:2px 6px; border-radius:6px; border:1px solid transparent}
+    .b-ok{background:rgba(34,197,94,.12); border-color:#1e8449; color:#9af0b6}
+    .b-warn{background:rgba(245,158,11,.12); border-color:#a36a0a; color:#ffd699}
+    .b-err{background:rgba(239,68,68,.12); border-color:#933; color:#f7a6a6}
+    .stack{display:flex; flex-direction:column; gap:8px}
+    .divider{height:1px; background:#18243f; margin:8px 0}
+    .stepper{display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:10px}
+    .step{background:#0a1530; border:1px solid #22345c; border-radius:12px; padding:10px; text-align:center}
+    .step.active{border-color:#3b82f6; box-shadow:0 0 0 1px rgba(59,130,246,.25) inset}
+    pre{background:#0a1122; border:1px solid #22345c; border-radius:12px; padding:12px; overflow:auto; box-shadow:var(--shadow)}
+    code{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-size:12px}
+    .toast{position:absolute; right:16px; bottom:16px; background:#0e1a30; border:1px solid #294176; color:#cfe1ff; padding:10px 14px; border-radius:12px; box-shadow:var(--shadow); display:none}
+    .legend{display:flex; gap:8px; align-items:center; flex-wrap:wrap}
+    .dot{width:10px; height:10px; border-radius:50%}
+    .dot.ok{background:#22c55e}
+    .dot.warn{background:#f59e0b}
+    .dot.err{background:#ef4444}
+    .footer{display:flex; justify-content:space-between; align-items:center; margin-top:8px; color:#a9b9df}
+    .kbd{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas; background:#0f1a34; border:1px solid #2b3c66; border-radius:6px; padding:0 6px; font-size:12px}
+    .notice{font-size:12px; color:#9fb3ff}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="brand">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3 7.5h8L9.2 3.8a1 1 0 0 1 1.6-1.2l3.9 5.4H21a1 1 0 1 1 0 2h-2.8l2.5 3.5a1 1 0 1 1-1.6 1.2L16 9.5H3a1 1 0 1 1 0-2Zm0 9h2.8l-2.5-3.5a1 1 0 1 1 1.6-1.2L8 15.5h13a1 1 0 1 1 0 2H9l2.8 3.7a1 1 0 0 1-1.6 1.2L6.3 17.5H3a1 1 0 1 1 0-2Z" fill="#6ee7ff"/></svg>
+        <h1>DRA 技術深潛 · 資源調度模擬器</h1>
+        <span class="pill">宣告式請求 · 智慧調度 · 可保證頻寬</span>
+      </div>
+      <div class="controls">
+        <button id="btnPreset" class="primary" title="載入 10G/5G 經典案例">載入經典案例</button>
+        <button id="btnSchedule">執行調度</button>
+        <button id="btnStep" class="ghost">逐步播放</button>
+        <button id="btnReset" class="danger">重設</button>
+      </div>
+    </header>
+
+    <div class="stage">
+      <div class="grid">
+        <aside class="sidebar" aria-label="控制面板">
+          <div class="card">
+            <h2>模擬模式</h2>
+            <div class="row">
+              <label for="mode">調度邏輯</label>
+              <select id="mode" aria-label="調度邏輯">
+                <option value="dra">DRA（可保證容量，超過則 Pending）</option>
+                <option value="cni">傳統（不追蹤容量，可能超額/失敗）</option>
+              </select>
+            </div>
+            <div class="small">DRA 流程：Publish → Request/Match → Allocate/Configure</div>
+          </div>
+
+          <div class="card">
+            <h2>新增節點（Node / ResourceSlice）</h2>
+            <div class="row"><input id="nodeName" type="text" placeholder="例如：worker-1" /></div>
+            <div class="row"><input id="nodeCap" type="number" min="0" step="1" placeholder="頻寬容量（Gbps）" /></div>
+            <div class="row">
+              <button id="addNode">加入節點</button>
+              <button id="clearNodes" class="ghost">清空</button>
+            </div>
+            <div class="chips" id="nodeChips"></div>
+          </div>
+
+          <div class="card">
+            <h2>新增 Pod（ResourceClaimTemplate）</h2>
+            <div class="row"><input id="podName" type="text" placeholder="例如：demo-a" /></div>
+            <div class="row"><input id="podReq" type="number" min="1" step="1" placeholder="需求頻寬（Gbps）" /></div>
+            <div class="row">
+              <button id="addPod">加入 Pod</button>
+              <button id="clearPods" class="ghost">清空</button>
+            </div>
+            <div class="chips" id="podChips"></div>
+          </div>
+
+          <div class="card stack">
+            <h2>說明 / 備註</h2>
+            <div class="small">這是概念性模擬器：以 <b>可分攤的消耗性容量（consumable capacity）</b> 模擬頻寬，展示 DRA 如何先保留再排程，保證請求或等待，不會「超額配給」。</div>
+            <div class="divider"></div>
+            <div class="legend">
+              <span class="dot ok"></span><span class="small">已配置</span>
+              <span class="dot warn"></span><span class="small">待排（Pending）</span>
+              <span class="dot err"></span><span class="small">超額/失敗</span>
+            </div>
+            <div class="notice">最佳觀看：16:9 螢幕。GitHub Pages 可直接上傳此 <span class="kbd">index.html</span>。</div>
+          </div>
+        </aside>
+
+        <main class="main" aria-live="polite">
+          <div class="stepper" id="stepper">
+            <div class="step" data-step="1"><div class="hint">Act 1</div><div>Publish（ResourceSlice）</div></div>
+            <div class="step" data-step="2"><div class="hint">Act 2</div><div>Request/Match（Claim → Reserve）</div></div>
+            <div class="step" data-step="3"><div class="hint">Act 3</div><div>Allocate/Configure（CNI Setup）</div></div>
+          </div>
+
+          <section class="columns" id="nodes"></section>
+
+          <div class="divider"></div>
+
+          <section id="yaml" aria-label="模擬 YAML 與狀態">
+            <h2>宣告式物件（模擬輸出）</h2>
+            <div class="row">
+              <div class="card" style="flex:1">
+                <div class="hint">ResourceSlice（供給端）</div>
+                <pre><code id="yamlSlices"># 尚未產生，請先加入節點並執行調度</code></pre>
+              </div>
+              <div class="card" style="flex:1">
+                <div class="hint">ResourceClaimTemplate / Pod（需求端）</div>
+                <pre><code id="yamlClaims"># 尚未產生，請先加入 Pod 並執行調度</code></pre>
+              </div>
+              <div class="card" style="flex:1">
+                <div class="hint">ResourceClaim（狀態回寫 devices.networkData）</div>
+                <pre><code id="yamlStatus"># 尚未產生，請先執行調度</code></pre>
+              </div>
+            </div>
+          </section>
+
+          <div class="footer">
+            <div class="small">© 2025 DRA Deep Dive — Demo page for talks. 本頁僅用於概念展示，非真實叢集輸出。</div>
+            <div class="small">快捷鍵：<span class="kbd">L</span> 經典案例、<span class="kbd">R</span> 調度、<span class="kbd">S</span> 逐步播放、<span class="kbd">X</span> 重設</div>
+          </div>
+        </main>
+      </div>
+      <div class="toast" id="toast" role="status" aria-live="assertive"></div>
+    </div>
+  </div>
+
+  <script>
+    // --- State ---
+    const state = {
+      mode: 'dra',
+      nodes: [], // { id, name, cap, used }
+      pods: [],  // { id, name, req, status: 'pending'|'running'|'failed', nodeId: null }
+      step: 0,
+      lastRunLogs: []
+    };
+
+    // --- Utilities ---
+    const $ = sel => document.querySelector(sel);
+    const $$ = sel => document.querySelectorAll(sel);
+    const uid = () => Math.random().toString(36).slice(2,8);
+    const fmtGbps = n => `${n} Gbps`;
+    const toast = (msg) => { const t = $('#toast'); t.textContent = msg; t.style.display='block'; setTimeout(()=>t.style.display='none', 1600); };
+
+    // --- Render ---
+    function render(){
+      // Update chips
+      const nodeChips = state.nodes.map(n => `<span class="chip" title="剩餘容量">${n.name} · ${fmtGbps(n.cap)}</span>`).join('');
+      $('#nodeChips').innerHTML = nodeChips || '<span class="small">尚無節點</span>';
+      const podChips = state.pods.map(p => `<span class="chip">${p.name} · 需求 ${fmtGbps(p.req)}</span>`).join('');
+      $('#podChips').innerHTML = podChips || '<span class="small">尚無 Pod</span>';
+
+      // Nodes columns
+      const nodeCols = state.nodes.map(n => {
+        const remaining = Math.max(0, n.cap - (n.used||0));
+        const pct = n.cap ? Math.round(((n.used||0)/n.cap)*100) : 0;
+        const pods = state.pods.filter(p => p.nodeId === n.id);
+        const podsHtml = pods.map(p => `<div class="pod"><div><b>${p.name}</b> <span class="small">${fmtGbps(p.req)}</span></div><span class="badge ${p.status==='running'?'b-ok': p.status==='failed'?'b-err':'b-warn'}">${p.status}</span></div>`).join('');
+        return `<div class="node"><h3>${n.name}</h3><div class="small">總容量：${fmtGbps(n.cap)} ｜ 已用：${fmtGbps(n.used||0)} ｜ 剩餘：${fmtGbps(remaining)}</div><div class="meter"><div style="width:${pct}%"></div></div><div>${podsHtml || '<div class="small">尚無配置</div>'}</div>`;
+      }).join('');
+
+      // Pending / failed list as a pseudo node
+      const pendings = state.pods.filter(p => !p.nodeId && p.status==='pending');
+      const fails = state.pods.filter(p => p.status==='failed');
+      const pendingHtml = pendings.map(p => `<div class="pod"><div><b>${p.name}</b> <span class="small">${fmtGbps(p.req)}</span></div><span class="badge b-warn">pending</span></div>`).join('');
+      const failHtml = fails.map(p => `<div class="pod"><div><b>${p.name}</b> <span class="small">${fmtGbps(p.req)}</span></div><span class="badge b-err">failed</span></div>`).join('');
+      const extraCols = `
+        <div class="node"><h3>Pending</h3>${pendingHtml || '<div class="small">—</div>'}</div>
+        <div class="node"><h3>Failed / Overcommit</h3>${failHtml || '<div class="small">—</div>'}</div>
+      `;
+
+      $('#nodes').innerHTML = nodeCols + extraCols;
+
+      // Stepper
+      $$('#stepper .step').forEach((el,i)=>{ el.classList.toggle('active', state.step === i+1); });
+
+      // YAML outputs (simulated)
+      $('#yamlSlices').textContent = genSlicesYAML();
+      $('#yamlClaims').textContent = genClaimsYAML();
+      $('#yamlStatus').textContent = genStatusYAML();
+    }
+
+    // --- Scheduling logic ---
+    function schedule(){
+      // Reset usage
+      state.nodes.forEach(n => n.used = 0);
+      state.pods.forEach(p => { p.nodeId = null; p.status='pending'; });
+
+      // DRA: respect capacity, reserve before placement
+      if(state.mode === 'dra'){
+        // Act 1: publish slices (inventory) — implicit here
+        state.step = 1; render();
+        // Act 2: request/match — greedy fit by available capacity (demo purpose)
+        setTimeout(()=>{
+          state.step = 2; render();
+          state.pods.forEach(p => {
+            const target = state.nodes.find(n => (n.cap - n.used) >= p.req);
+            if(target){
+              target.used += p.req; p.nodeId = target.id; p.status = 'running';
+            } else { p.status = 'pending'; }
+          });
+          render();
+          // Act 3: allocate/configure
+          setTimeout(()=>{ state.step = 3; render(); toast('DRA 調度完成：不足即等待（Pending）'); }, 300);
+        }, 300);
+      }
+      // CNI: naive assignment (round-robin) ignoring capacity
+      else {
+        state.step = 0; // no steps
+        const nodes = state.nodes.slice();
+        let idx = 0;
+        state.pods.forEach(p => {
+          if(nodes.length === 0){ p.status='failed'; return; }
+          const n = nodes[idx % nodes.length]; idx++;
+          p.nodeId = n.id; n.used = (n.used||0) + p.req;
+          if(n.used > n.cap){ p.status='failed'; } else { p.status='running'; }
+        });
+        render();
+        toast('傳統（示意）調度：可能超額或失敗，無集中容量保證');
+      }
+    }
+
+    // --- YAML generators (simulated content) ---
+    function genSlicesYAML(){
+      if(!state.nodes.length) return '# 尚無資源切片（ResourceSlice）';
+      return state.nodes.map(n=>`apiVersion: resource.k8s.io/v1alpha3\nkind: ResourceSlice\nmetadata:\n  name: slice-${n.name}\nspec:\n  nodeName: ${n.name}\n  resources:\n  - name: nic0\n    shared: true\n    capacities:\n      bandwidth: ${n.cap}Gi\n`).join('\n---\n\n');
+    }
+    function genClaimsYAML(){
+      if(!state.pods.length) return '# 尚無資源請求（ResourceClaimTemplate / Pod）';
+      return state.pods.map(p=>`apiVersion: v1\nkind: Pod\nmetadata:\n  name: ${p.name}\nspec:\n  resourceClaims:\n  - name: net\n    source:\n      resourceClaimTemplateName: ${p.name}-rct\n---\napiVersion: resource.k8s.io/v1alpha3\nkind: ResourceClaimTemplate\nmetadata:\n  name: ${p.name}-rct\nspec:\n  spec:\n    devices: [\"network.nic\"]\n    requests:\n      attributes:\n        selector: \"has(capacities.bandwidth)\"\n      capacities:\n        min:\n          bandwidth: ${p.req}Gi\n`).join('\n---\n\n');
+    }
+    function genStatusYAML(){
+      const chosen = state.pods.filter(p=>p.nodeId);
+      if(!chosen.length) return '# 尚無已配置之 ResourceClaim 狀態';
+      return chosen.map(p=>{
+        const n = state.nodes.find(x=>x.id===p.nodeId);
+        const mac = randMAC(); const ip = randIP();
+        return `apiVersion: resource.k8s.io/v1alpha3\nkind: ResourceClaim\nmetadata:\n  name: ${p.name}-rc\nstatus:\n  allocations:\n  - device: nic0\n    nodeName: ${n.name}\n  devices:\n  - networkData:\n      mac: ${mac}\n      interfaceName: net1\n      ips: [\"${ip}\"]\n`;
+      }).join('\n---\n\n');
+    }
+    const randMAC=()=>{
+      const h=()=>Math.floor(Math.random()*256).toString(16).padStart(2,'0');
+      return `${h()}:${h()}:${h()}:${h()}:${h()}:${h()}`;
+    };
+    const randIP=()=>`10.${Math.floor(10+Math.random()*20)}.${Math.floor(Math.random()*256)}.${Math.floor(Math.random()*256)}`;
+
+    // --- Event handlers ---
+    $('#mode').addEventListener('change', e=>{ state.mode=e.target.value; render(); });
+
+    $('#addNode').addEventListener('click', ()=>{
+      const name = ($('#nodeName').value||'').trim();
+      const cap = parseInt($('#nodeCap').value,10);
+      if(!name || !(cap>=0)){ toast('請輸入節點名稱與容量'); return; }
+      state.nodes.push({ id: uid(), name, cap, used:0 });
+      $('#nodeName').value=''; $('#nodeCap').value='';
+      render();
+    });
+    $('#clearNodes').addEventListener('click', ()=>{ state.nodes=[]; render(); });
+
+    $('#addPod').addEventListener('click', ()=>{
+      const name = ($('#podName').value||'').trim();
+      const req = parseInt($('#podReq').value,10);
+      if(!name || !(req>0)){ toast('請輸入 Pod 名稱與需求頻寬'); return; }
+      state.pods.push({ id: uid(), name, req, status:'pending', nodeId:null });
+      $('#podName').value=''; $('#podReq').value='';
+      render();
+    });
+    $('#clearPods').addEventListener('click', ()=>{ state.pods=[]; render(); });
+
+    $('#btnSchedule').addEventListener('click', schedule);
+
+    // Step-by-step animation
+    let stepTimer=null;
+    $('#btnStep').addEventListener('click', ()=>{
+      if(stepTimer){ clearInterval(stepTimer); stepTimer=null; state.step=0; render(); return; }
+      state.step=0; render();
+      const seq=[()=>{state.step=1;render();}, ()=>{state.step=2;render();}, ()=>{schedule();}];
+      let i=0; seq[i++]();
+      stepTimer=setInterval(()=>{ if(i<seq.length){ seq[i++](); } else { clearInterval(stepTimer); stepTimer=null; } }, 900);
+    });
+
+    $('#btnReset').addEventListener('click', ()=>{ Object.assign(state,{ mode:'dra', nodes:[], pods:[], step:0 }); render(); });
+
+    $('#btnPreset').addEventListener('click', ()=>{ loadClassic(); render(); toast('已載入 10G/5G 經典案例'); });
+
+    // Keyboard shortcuts
+    window.addEventListener('keydown', (e)=>{
+      if(e.key==='l' || e.key==='L'){ loadClassic(); render(); }
+      if(e.key==='r' || e.key==='R'){ schedule(); }
+      if(e.key==='s' || e.key==='S'){ $('#btnStep').click(); }
+      if(e.key==='x' || e.key==='X'){ $('#btnReset').click(); }
+    });
+
+    function loadClassic(){
+      state.mode='dra';
+      state.nodes=[
+        { id:uid(), name:'worker-1', cap:10, used:0 },
+        { id:uid(), name:'worker-2', cap:10, used:0 },
+        { id:uid(), name:'worker-3', cap:0,  used:0 }
+      ];
+      state.pods=[
+        { id:uid(), name:'demo-a', req:10, status:'pending', nodeId:null },
+        { id:uid(), name:'demo-b-1', req:5, status:'pending', nodeId:null },
+        { id:uid(), name:'demo-b-2', req:5, status:'pending', nodeId:null },
+        { id:uid(), name:'demo-b-3', req:5, status:'pending', nodeId:null }
+      ];
+    }
+
+    // Initial render
+    loadClassic(); render();
+  </script>
+</body>
+</html>
