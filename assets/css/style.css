@@ -1,0 +1,193 @@
+/* assets/css/style.css */
+
+/* --- COSCUP 2025 主題風格 --- */
+
+/* :root 定義了全域 CSS 變數，方便統一管理和修改顏色 */
+:root {
+    --coscup-pink: #ff7675;
+    --coscup-yellow: #fdcb6e;
+    --coscup-blue: #74b9ff;
+    --coscup-purple: #a29bfe;
+    --coscup-green: #55efc4;
+    --coscup-dark: #2d3436;
+    --coscup-light: #dfe6e9;
+    --coscup-bg-dark: rgba(45, 52, 54, 0.7); /* 半透明深色背景，突顯內容 */
+}
+
+body {
+    font-family: 'Noto Sans TC', sans-serif;
+    /* 提取主視覺的紫藍色漸層作為背景 */
+    background: linear-gradient(135deg, var(--coscup-purple), var(--coscup-blue));
+    overflow: hidden; /* 隱藏滾動條，讓簡報全螢幕呈現 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    color: var(--coscup-light);
+}
+
+
+/* --- 啟動畫面 --- */
+#intro-screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #6c5ce7; /* 較深的紫色作為開場背景 */
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: opacity 0.8s ease-out;
+}
+
+#intro-screen.fade-out {
+    opacity: 0;
+    pointer-events: none; /* 淡出後不可再點擊 */
+}
+
+#intro-image {
+    width: 90%;
+    max-width: 1000px;
+    /* 讓主視覺圖有輕微的上下浮動動畫 */
+    animation: float 6s ease-in-out infinite;
+}
+
+.start-prompt {
+    margin-top: 1rem;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--coscup-yellow);
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+    /* 提示文字有呼吸燈效果 */
+    animation: pulse 2s infinite;
+}
+
+/* --- 簡報主容器 --- */
+#presentation-container {
+    width: 95vw;
+    height: 95vh;
+    max-width: 1200px;
+    max-height: 675px; /* 維持 16:9 比例 */
+    background-color: var(--coscup-bg-dark);
+    border-radius: 20px;
+    /* 模擬復古 OS 視窗的邊框 */
+    border: 3px solid var(--coscup-light);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+    /* 初始隱藏，等待啟動畫面結束後淡入 */
+    opacity: 0;
+    transform: scale(0.95);
+    transition: opacity 0.5s ease-in, transform 0.5s ease-in;
+}
+
+#presentation-container.visible {
+    opacity: 1;
+    transform: scale(1);
+}
+
+/* 投影片內容區域 */
+#slide-container {
+    flex-grow: 1;
+    padding: 2rem 4rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    transition: opacity 0.5s ease-in-out;
+}
+
+.slide-fade-out {
+    opacity: 0;
+}
+
+
+/* --- 通用文字與元件樣式 --- */
+
+/* 標題字體與效果，模擬 COSCUP Logo 的堆疊感 */
+.coscup-title {
+    font-family: 'Poppins', 'Noto Sans TC', sans-serif;
+    font-weight: 900;
+    font-size: clamp(2.5rem, 5vw, 4rem); /* RWD 字體大小 */
+    line-height: 1.2;
+    color: var(--coscup-pink);
+    text-shadow: 
+        -2px -2px 0 var(--coscup-dark), 2px -2px 0 var(--coscup-dark),
+        -2px 2px 0 var(--coscup-dark), 2px 2px 0 var(--coscup-dark),
+        4px 4px 0 var(--coscup-yellow);
+}
+
+.coscup-subtitle {
+    color: var(--coscup-yellow);
+    font-weight: 700;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+}
+
+.coscup-info {
+    color: var(--coscup-light);
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+}
+
+
+/* --- 導航控制項 --- */
+.nav-button {
+    position: absolute;
+    bottom: 1.5rem;
+    background-color: var(--coscup-pink);
+    color: white;
+    font-weight: 700;
+    padding: 0.75rem 1.5rem;
+    border-radius: 9999px; /* 藥丸形狀 */
+    border: 2px solid var(--coscup-dark);
+    box-shadow: 3px 3px 0 var(--coscup-dark);
+    transition: all 0.2s ease;
+    cursor: pointer;
+    z-index: 10;
+}
+
+.nav-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 5px 5px 0 var(--coscup-dark);
+}
+
+.nav-button:active {
+    transform: translateY(1px);
+    box-shadow: 2px 2px 0 var(--coscup-dark);
+}
+
+#prev-slide { right: 10rem; }
+#next-slide { right: 1.5rem; }
+
+#slide-counter {
+    position: absolute;
+    bottom: 2rem;
+    left: 2rem;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--coscup-light);
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+}
+
+
+/* --- 動畫效果 --- */
+
+/* 啟動畫面主視覺的浮動效果 */
+@keyframes float {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-20px); }
+    100% { transform: translateY(0px); }
+}
+
+/* 啟動畫面提示文字的呼吸燈效果 */
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.6; }
+    100% { opacity: 1; }
+}
