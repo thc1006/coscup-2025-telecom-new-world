@@ -1,6 +1,8 @@
 # **電信新世界：開放、雲原生、AI 怎麼翻轉網路、走向未來？**
 
-本專案是 **蔡秀吉 (Hsiu-Chi Tsai)** 於 **COSCUP 2025 開源人年會** 所發表的議程 **「電信新世界：開放、雲原生、AI 怎麼翻轉網路、走向未來？」** 的官方互動式簡報與數位展示內容。
+> 議程內容：https://coscup.org/2025/sessions/KZBFAT
+
+本專案是本人 **蔡秀吉 (Hsiu-Chi Tsai)** 於 **COSCUP 2025 開源人年會** 所發表的議程 **「電信新世界：開放、雲原生、AI 怎麼翻轉網路、走向未來？」** 的官方互動式簡報與數位展示內容。
 
 傳統的簡報（PPT、Keynote）在呈現複雜的技術流程與動態概念時有所限制。為了提供聽眾更具沉浸感與互動性的體驗，本次演講特別採用了完全基於 Web 技術打造的簡報系統，並包含了多個可實際操作的數位展示 Demo。
 
@@ -73,7 +75,7 @@ cd coscup-2025-telecom-new-world
 
 **蔡秀吉 (Hsiu-Chi Tsai)**
 
-一位對雲原生技術、網路自動化與電信產業轉型充滿熱情的開發者與技術傳教士。
+Currently serving in the Department of Neurology at Taipei City Hospital, Yangming Branch, with research expertise in Cloud-Native B5G/6G O-RAN automation and AI/ML workflows in O-RAN. I am also an alumnus of the Google Responsible AI Innovation Fellowship.
 
 * **GitHub**: [@thc1006](https://github.com/thc1006)  
 * **Blog**: [Hsiu-Chi's Blog](https://thc1006.blogspot.com/)
